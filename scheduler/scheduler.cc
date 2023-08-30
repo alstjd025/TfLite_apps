@@ -1,7 +1,7 @@
 #include "tensorflow/lite/tf_scheduler.h"
 
 #define SCHEDULER_SOCK "/home/nvidia/TfLite_apps/sock/scheduler"
-#define PARTITIONING_PARAMS "/home/nvidia/TfLite_apps/params/subgraph/[model_type]/[partitioning_plan]"
+#define PARTITIONING_PARAMS "/home/nvidia/TfLite_apps/params/subgraph/[model_type]/"
 
 int main(int argc, char* argv[]){
   if(argc < 2){

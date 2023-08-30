@@ -7,14 +7,14 @@ TF_P_PLAN_CPU_XNN = 3
 TF_P_PLAN_CO_E_XNN = 4
 file_ = ["cpu", "gpu", "co_e", "xnn", "co_e_xnn"]
 plan_ratio_cw = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-plan_ratio_hw = [11, 12, 13, 14, 15, 16, 17, 18, 19] #CW/HW ratio
+plan_ratio_hw = [13, 14, 15, 16, 17] #CW/HW ratio
 
 class delegation_combination:
     def __init__(self, flag, name):
         self.resource = flag
         self.name = name
     def yolo_combination(self):
-        file_name = "../subgraph/yolo/yolo_combination_" + self.name
+        file_name = "../model/yolo/yolo_combination_" + self.name
         f = open(file_name, 'w')
         # layer num
         layer = 152
@@ -79,7 +79,7 @@ class delegation_combination:
         r.close()
 
     def mobilenet_combination(self):
-        file_name = "../subgraph/mobilenet/mobilenet_combination_" + self.name
+        file_name = "../model/mobilenet/mobilenet_combination_" + self.name
         m = open(file_name, 'w')
         # layer num
         layer = 31
@@ -123,7 +123,7 @@ class delegation_combination:
                     m.write('{0}\n'.format(k))
                     m.write('{0}\n'.format(k+1))
                     m.write('{0}\n'.format(0))
-                    m.write('{0}\n'.format(plan_ratio_cw[0]))
+                    m.write('{0}\n'.format(0))
                     m.write('{0}\n'.format(-1))
                     m.write('{0}\n'.format(-2))
                     k+=1
@@ -141,7 +141,7 @@ class delegation_combination:
         l.close()
 
     def efficient_combination(self):
-        file_name = "../subgraph/efficient/efficient_combination_" + self.name
+        file_name = "../model/efficient/efficient_combination_" + self.name
         m = open(file_name, 'w')
         # layer num
         layer = 118
@@ -211,7 +211,7 @@ class co_execution_combination:
         self.resource = flag
         self.name = name
     def yolo_combination(self):
-        file_name = "../subgraph/yolo/yolo_combination_" + self.name
+        file_name = "../model/yolo/yolo_combination_" + self.name
         f = open(file_name, 'w')
         # layer num
         layer = 152
@@ -238,47 +238,44 @@ class co_execution_combination:
         # per subgraph's usable resource set
         # repeat = fallback num + 1(subgraph in no fallback layer)
         nREr = list(product(plan_resource, repeat=not_fallback)) # resource product
-        nCWr = list(product(plan_ratio_cw, repeat=not_fallback)) # cw product
         nHWr = list(product(plan_ratio_hw, repeat=not_fallback)) # hw product
-        nRAr = [nCWr, nHWr]
         # need to change model file
-        for i in range(len(nRAr)):
-            for j in range(len(nCWr)): # len(nHWr) == len(nCWr)
-                count = 0 # for checking ratio in combination(nCWr)
-                k = 0
-                while k < layer: # CW
-                    if(name[k] == 'SPLIT\n'): # fallback subgraph
-                        f.write('{0}\n'.format(k))
-                        f.write('{0}\n'.format(k+1))
-                        f.write('{0}\n'.format(0))
-                        f.write('{0}\n'.format(0))
-                        count += 1
-                        k += 1
-                    elif k > 54: # last subgraph 55~152
-                        f.write('{0}\n'.format(k))
-                        while True:
-                            if k==152: break
-                            k+=1
-                        f.write('{0}\n'.format(k))
-                        f.write('{0}\n'.format(0))
-                        f.write('{0}\n'.format(0))
-                        f.write('{0}\n'.format(-1))
-                        f.write('{0}\n'.format(-2))
-                    else:
-                        f.write('{0}\n'.format(k))
-                        while True:
-                            if(num[k] == '55' or name[k] == 'SPLIT\n'): # condition has to change by model structure)
-                                break
-                            else:
-                                k += 1
-                        f.write('{0}\n'.format(k))
-                        f.write('{0}\n'.format(self.resource))
-                        f.write('{0}\n'.format(nRAr[i][j][count]))
+        for j in range(len(nHWr)): # len(nHWr) == len(nCWr)
+            count = 0 # for checking ratio in combination(nCWr)
+            k = 0
+            while k < layer: # CW
+                if(name[k] == 'SPLIT\n'): # fallback subgraph
+                    f.write('{0}\n'.format(k))
+                    f.write('{0}\n'.format(k+1))
+                    f.write('{0}\n'.format(0))
+                    f.write('{0}\n'.format(0))
+                    count += 1 
+                    k += 1
+                elif k > 54: # last subgraph 55~152
+                    f.write('{0}\n'.format(k))
+                    while True:
+                        if k==152: break
+                        k+=1
+                    f.write('{0}\n'.format(k))
+                    f.write('{0}\n'.format(0))
+                    f.write('{0}\n'.format(0))
+                    f.write('{0}\n'.format(-1))
+                    f.write('{0}\n'.format(-2))
+                else:
+                    f.write('{0}\n'.format(k))
+                    while True:
+                        if(num[k] == '55' or name[k] == 'SPLIT\n'): # condition has to change by model structure)
+                            break
+                        else:
+                            k += 1
+                    f.write('{0}\n'.format(k))
+                    f.write('{0}\n'.format(self.resource))
+                    f.write('{0}\n'.format(nHWr[j][count]))
         f.close()
         r.close()
 
     def mobilenet_combination(self):
-            file_name = "../subgraph/mobilenet/mobilenet_combination_" + self.name
+            file_name = "../model/mobilenet/mobilenet_combination_" + self.name
             f = open(file_name, 'w')
             # layer num
             layer = 31
@@ -305,44 +302,42 @@ class co_execution_combination:
             # per subgraph's usable resource set
             # repeat = fallback num + 1(subgraph in no fallback layer)
             nREr = list(product(plan_resource, repeat=not_fallback)) # resource product
-            nCWr = list(product(plan_ratio_cw, repeat=not_fallback)) # cw product
-            nHWr = list(product(plan_ratio_hw, repeat=not_fallback)) # hw product
+            nCWr = list(product(plan_ratio_cw, repeat=1)) # cw product
+            nHWr = list(product(plan_ratio_hw, repeat=1)) # hw product
             nRAr = [nCWr, nHWr]
             # need to change model file
-            for i in range(len(nRAr)):
-                for j in range(len(nCWr)): # len(nHWr) == len(nCWr)
-                    count = 0 # for checking ratio in combination(nCWr)
-                    k = 0
-                    while k < layer: # CW
-                        if(name[k] == 'SQUEEZE\n'): # fallback subgraph
-                            f.write('{0}\n'.format(k))
-                            f.write('{0}\n'.format(k+1))
-                            f.write('{0}\n'.format(0))
-                            f.write('{0}\n'.format(0))
-                            count += 1
-                            k += 1
-                        elif k == 30:
-                            f.write('{0}\n'.format(k))
-                            f.write('{0}\n'.format(k+1))
-                            f.write('{0}\n'.format(self.resource))
-                            f.write('{0}\n'.format(nRAr[i][j][count]))
-                            f.write('{0}\n'.format(-1))
-                            f.write('{0}\n'.format(-2))
-                            k+=1
-                        else:
-                            f.write('{0}\n'.format(k))
-                            while True:
-                                if(name[k] == 'SQUEEZE\n'): # condition has to change by model structure)
-                                    break
-                                else:
-                                    k += 1
-                            f.write('{0}\n'.format(k))
-                            f.write('{0}\n'.format(self.resource))
-                            f.write('{0}\n'.format(nRAr[i][j][count]))
+            for i in range(len(nHWr)): # len(nHWr) == len(nCWr)
+                count = 0 # for checking ratio in combination(nCWr)
+                k = 0
+                while k < layer:
+                    if(name[k] == 'SQUEEZE\n'): # fallback subgraph
+                        f.write('{0}\n'.format(k))
+                        f.write('{0}\n'.format(k+1))
+                        f.write('{0}\n'.format(self.resource))
+                        f.write('{0}\n'.format(nCWr[i][0]))
+                        k += 1
+                    elif k == 30:
+                        f.write('{0}\n'.format(k))
+                        f.write('{0}\n'.format(k+1))
+                        f.write('{0}\n'.format(0))
+                        f.write('{0}\n'.format(0))
+                        f.write('{0}\n'.format(-1))
+                        f.write('{0}\n'.format(-2))
+                        k+=1
+                    else:
+                        f.write('{0}\n'.format(k))
+                        while True:
+                            if(name[k] == 'SQUEEZE\n'): # condition has to change by model structure)
+                                break
+                            else:
+                                k += 1
+                        f.write('{0}\n'.format(k))
+                        f.write('{0}\n'.format(self.resource))
+                        f.write('{0}\n'.format(nHWr[i][0]))
             f.close()
             r.close()
     def efficient_combination(self):
-            file_name = "../subgraph/efficient/efficient_combination_" + self.name
+            file_name = "../model/efficient/efficient_combination_" + self.name
             f = open(file_name, 'w')
             # layer num
             layer = 118
@@ -370,43 +365,31 @@ class co_execution_combination:
             # repeat = fallback num + 1(subgraph in no fallback layer)
             nREr = list(product(plan_resource, repeat=not_fallback)) # resource product
             nCWr = list(product(plan_ratio_cw, repeat=not_fallback)) # cw product
-            nHWr = list(product(plan_ratio_hw, repeat=not_fallback)) # hw product
+            nHWr = list(product(plan_ratio_hw, repeat=1)) # hw product
             nRAr = [nCWr, nHWr]
             # need to change model file
-            for i in range(len(nRAr)):
-                for j in range(len(nCWr)): # len(nHWr) == len(nCWr)
-                    count = 0 # for checking ratio in combination(nCWr)
-                    k = 0
-                    while k < layer: # CW
-                        if(name[k] == 'RESHAPE\n'): # fallback subgraph
-                            f.write('{0}\n'.format(k))
-                            f.write('{0}\n'.format(k+1))
-                            f.write('{0}\n'.format(0))
-                            f.write('{0}\n'.format(0))
-                            count += 1
-                            k += 1
-                        elif k == 116:
-                            f.write('{0}\n'.format(k))
-                            while True:
-                                if k==layer:
-                                    break
-                                k+=1
-                            f.write('{0}\n'.format(k))
-                            f.write('{0}\n'.format(self.resource))
-                            f.write('{0}\n'.format(nRAr[i][j][count]))
-                            f.write('{0}\n'.format(-1))
-                            f.write('{0}\n'.format(-2))
-                            k+=1
-                        else:
-                            f.write('{0}\n'.format(k))
-                            while True:
-                                if(name[k] == 'RESHAPE\n'): # condition has to change by model structure)
-                                    break
-                                else:
-                                    k += 1
-                            f.write('{0}\n'.format(k))
-                            f.write('{0}\n'.format(self.resource))
-                            f.write('{0}\n'.format(nRAr[i][j][count]))
+            for i in range(len(nHWr)): # len(nHWr) == len(nCWr)
+                count = 0 # for checking ratio in combination(nCWr)
+                k = 0
+                while k < layer: # CW
+                    if(k >= 114): # fallback subgraph
+                        f.write('{0}\n'.format(k))
+                        f.write('{0}\n'.format(k+4))
+                        f.write('{0}\n'.format(1))
+                        f.write('{0}\n'.format(0))
+                        f.write('{0}\n'.format(-1))
+                        f.write('{0}\n'.format(-2))
+                        break
+                    else:
+                        f.write('{0}\n'.format(k))
+                        while True:
+                            if(name[k] == 'AVERAGE_POOL_2D\n'): # condition has to change by model structure)
+                                break
+                            else:
+                                k += 1
+                        f.write('{0}\n'.format(k))
+                        f.write('{0}\n'.format(self.resource))
+                        f.write('{0}\n'.format(nHWr[i][0]))
             f.close()
             r.close()
 def main():
