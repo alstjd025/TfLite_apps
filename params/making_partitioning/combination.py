@@ -6,8 +6,8 @@ TF_P_PLAN_CO_E = 2
 TF_P_PLAN_CPU_XNN = 3
 TF_P_PLAN_CO_E_XNN = 4
 file_ = ["cpu", "gpu", "co_e", "xnn", "co_e_xnn"]
-plan_ratio_cw = [1, 2, 3, 4, 5, 6, 7, 8, 9]
-plan_ratio_hw = [13, 14, 15, 16, 17] #CW/HW ratio
+plan_ratio_cw = [2, 3, 4, 5, 6, 7, 8]
+plan_ratio_hw = [12, 13, 14, 15, 16, 17, 18] #CW/HW ratio
 
 class delegation_combination:
     def __init__(self, flag, name):
@@ -34,13 +34,13 @@ class delegation_combination:
                 if not lines:
                     break
                 num[idx], name[idx] = lines.split(' ')
-                if(name[idx] == 'SPLIT\n' or num[idx] == '55'): # condition has to change by model structure
+                if(name[idx] == 'SPLIT\n'): # condition has to change by model structure
                     plan_idx += 1
                 idx += 1
         not_fallback = plan_idx
         # per subgraph's usable resource set
         # repeat = fallback num + 1(subgraph in no fallback layer)
-        nREr = list(product(plan_resource, repeat=3))
+        nREr = list(product(plan_resource, repeat=not_fallback))
         nCWr = list(product(plan_ratio_cw, repeat=not_fallback))
         nHWr = list(product(plan_ratio_cw, repeat=not_fallback))
         # need to change model file
@@ -117,7 +117,6 @@ class delegation_combination:
         nCWr = list(product(plan_ratio_cw, repeat=not_fallback))
         nHWr = list(product(plan_ratio_cw, repeat=not_fallback))
         # need to change model file
-        print(nREr)
         for j in range(len(nREr)):
             count = 0 # for checking resource type in combination(nREr)
             k = 0
@@ -173,7 +172,6 @@ class delegation_combination:
                     plan_idx += 1
                 idx += 1
         not_fallback = plan_idx+1
-        tot_subgraph = plan_idx*2
         # per subgraph's usable resource set
         # repeat = fallback num + 1(subgraph in no fallback layer)
         nREr = list(product(plan_resource, repeat=not_fallback))
@@ -241,7 +239,7 @@ class co_execution_combination:
                 if not lines:
                     break
                 num[idx], name[idx] = lines.split(' ')
-                if(name[idx] == 'SPLIT\n' or num[idx] == '55'): # condition has to change by model structure
+                if(name[idx] == 'SPLIT\n'): # condition has to change by model structure
                     plan_idx += 1
                 idx += 1
         not_fallback = plan_idx
@@ -261,6 +259,12 @@ class co_execution_combination:
                     f.write('{0}\n'.format(0))
                     count += 1 
                     k += 1
+                elif k >= 33 and k < 55:
+                    f.write('{0}\n'.format(k))
+                    f.write('{0}\n'.format(55))
+                    f.write('{0}\n'.format(1))
+                    f.write('{0}\n'.format(0))
+                    k = 55
                 elif k > 54: # last subgraph 55~152
                     f.write('{0}\n'.format(k))
                     while True:
@@ -274,7 +278,7 @@ class co_execution_combination:
                 else:
                     f.write('{0}\n'.format(k))
                     while True:
-                        if(num[k] == '55' or name[k] == 'SPLIT\n'): # condition has to change by model structure)
+                        if(num[k] == '33' or name[k] == 'SPLIT\n'): # condition has to change by model structure)
                             break
                         else:
                             k += 1
