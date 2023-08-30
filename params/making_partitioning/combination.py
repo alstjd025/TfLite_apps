@@ -40,7 +40,7 @@ class delegation_combination:
         not_fallback = plan_idx
         # per subgraph's usable resource set
         # repeat = fallback num + 1(subgraph in no fallback layer)
-        nREr = list(product(plan_resource, repeat=not_fallback))
+        nREr = list(product(plan_resource, repeat=3))
         nCWr = list(product(plan_ratio_cw, repeat=not_fallback))
         nHWr = list(product(plan_ratio_cw, repeat=not_fallback))
         # need to change model file
@@ -55,20 +55,29 @@ class delegation_combination:
                     f.write('{0}\n'.format(0))
                     count += 1
                     k += 1
+                elif k >= 33 and k < 55:
+                    f.write('{0}\n'.format(k))
+                    f.write('{0}\n'.format(55))
+                    f.write('{0}\n'.format(1))
+                    f.write('{0}\n'.format(0))
+                    k = 55
                 elif k > 54:
                     f.write('{0}\n'.format(k))
                     while True:
                         if k==152: break
                         k+=1
                     f.write('{0}\n'.format(k))
-                    f.write('{0}\n'.format(0))
+                    if(self.resource == 3):
+                        f.write('{0}\n'.format(3))
+                    else:
+                        f.write('{0}\n'.format(0))
                     f.write('{0}\n'.format(0))
                     f.write('{0}\n'.format(-1))
                     f.write('{0}\n'.format(-2))
                 else:
                     f.write('{0}\n'.format(k))
                     while True:
-                        if(num[k] == '55' or name[k] == 'SPLIT\n'): # condition has to change by model structure)
+                        if(num[k] == '33' or name[k] == 'SPLIT\n'): # condition has to change by model structure)
                             break
                         else:
                             k += 1
@@ -108,6 +117,7 @@ class delegation_combination:
         nCWr = list(product(plan_ratio_cw, repeat=not_fallback))
         nHWr = list(product(plan_ratio_cw, repeat=not_fallback))
         # need to change model file
+        print(nREr)
         for j in range(len(nREr)):
             count = 0 # for checking resource type in combination(nREr)
             k = 0
