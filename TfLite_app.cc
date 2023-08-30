@@ -6,8 +6,8 @@
 
 #define OUT_SEQ 100
 #define mnist 
-// #define imagenet
-#define lanenet
+#define imagenet
+// #define lanenet
 
 #define twomodel
 
@@ -16,12 +16,13 @@ using namespace std;
 
 #define RUNTIME_SOCK "/home/nvidia/TfLite_apps/sock/runtime_1"
 #define SCHEDULER_SOCK "/home/nvidia/TfLite_apps/sock/scheduler"
-
-#ifdef mnist
+#define ROOT_DIR "/home/nvidia/TfLite_apps/image"
 
 std::vector<std::string> coco_label;
 std::vector<std::string> imagenet_label;
 
+
+#ifdef mnist
 int ReverseInt(int i)
 {
 	unsigned char ch1, ch2, ch3, ch4;
@@ -84,7 +85,7 @@ void read_Mnist_Label(string filename, vector<unsigned char> &arr) {
         cout << "file open failed" << endl;
     }
 }
-#endif
+#endif // define Mnist
 
 void read_image_opencv(string filename, vector<cv::Mat>& input,
 											tflite::INPUT_TYPE type){
@@ -106,6 +107,9 @@ void read_image_opencv(string filename, vector<cv::Mat>& input,
 		break;
 	
 	case tflite::INPUT_TYPE::IMAGENET416:
+		cv::resize(cvimg, cvimg_, cv::Size(416, 416)); //resize
+		break;
+	case tflite::INPUT_TYPE::COCO416:
 		cv::resize(cvimg, cvimg_, cv::Size(416, 416)); //resize
 		break;
 	case tflite::INPUT_TYPE::LANENET144800:
@@ -143,6 +147,9 @@ void read_image_opencv_quant(string filename, vector<cv::Mat>& input,
 		break;
 	
 	case tflite::INPUT_TYPE::IMAGENET416:
+		cv::resize(cvimg, cvimg_, cv::Size(416, 416)); //resize
+		break;
+	case tflite::INPUT_TYPE::COCO416:
 		cv::resize(cvimg, cvimg_, cv::Size(416, 416)); //resize
 		break;
 	case tflite::INPUT_TYPE::LANENET144800:
@@ -264,8 +271,8 @@ void ParseOutput(std::vector<std::vector<uint8_t>*>* output){
 }
 
 void ParseLabels(){
-	std::string coco_file = "labels/coco_label.txt";
-	std::string imagenet_file = "labels/imagenet_label.txt";
+	std::string coco_file = "label/coco_label.txt";
+	std::string imagenet_file = "label/imagenet_label.txt";
 	std::ifstream coco_fd, imagenet_fd;
 	coco_fd.open(coco_file);
 	imagenet_fd.open(imagenet_file);
@@ -306,17 +313,17 @@ int main(int argc, char* argv[])
 
 	#ifdef mnist
 	std::cout << "Loading images \n";
-	read_Mnist("images/train-images-idx3-ubyte", input_mnist);
+	read_Mnist("images/mnist/train-images-idx3-ubyte", input_mnist);
 	std::cout << "Loading Labels \n";
-	read_Mnist_Label("labels/train-labels-idx1-ubyte", arr);
+	read_Mnist_Label("labels/mnist/train-labels-idx1-ubyte", arr);
 	std::cout << "Loading Mnist Image, Label Complete \n";
 	#endif
 
 	#ifdef imagenet
-	read_image_opencv("images/banana_0.jpg", input_imagenet, tflite::INPUT_TYPE::IMAGENET416);
-	read_image_opencv("images/orange.jpg", input_imagenet, tflite::INPUT_TYPE::IMAGENET416);
-	read_image_opencv_quant("images/banana_0.jpg", input_iamgenet_quant, tflite::INPUT_TYPE::IMAGENET416);
-	read_image_opencv_quant("images/orange.jpg", input_iamgenet_quant, tflite::INPUT_TYPE::IMAGENET416);
+	read_image_opencv("/home/nvidia/TfLite_apps/images/coco/banana_0.jpg", input_imagenet, tflite::INPUT_TYPE::COCO416);
+	read_image_opencv("/home/nvidia/TfLite_apps/images/coco/orange.jpg", input_imagenet, tflite::INPUT_TYPE::COCO416);
+	read_image_opencv_quant("/home/nvidia/TfLite_apps/images/coco/banana_0.jpg", input_iamgenet_quant, tflite::INPUT_TYPE::COCO416);
+	read_image_opencv_quant("/home/nvidia/TfLite_apps/images/coco/orange.jpg", input_iamgenet_quant, tflite::INPUT_TYPE::COCO416);
 	#endif
 
 	#ifdef lanenet
@@ -330,7 +337,7 @@ int main(int argc, char* argv[])
   struct timespec begin, end;
   int n = 0;
 	tflite::TfLiteRuntime runtime(RUNTIME_SOCK, SCHEDULER_SOCK,
-																	 first_model, second_model, tflite::INPUT_TYPE::IMAGENET416);
+																	 first_model, second_model, tflite::INPUT_TYPE::COCO416);
   
 
 	// Output vector
@@ -339,15 +346,12 @@ int main(int argc, char* argv[])
 	ParseLabels();
   while(n < OUT_SEQ){
     // std::cout << "[LiteRuntime] invoke : " << n << "\n";
-    
     runtime.FeedInputToModelDebug(first_model, input_imagenet[n % 2], 
-			input_iamgenet_quant[n % 2], tflite::INPUT_TYPE::IMAGENET416);
-    // runtime.FeedInputToModelDebug(first_model, input_mnist[n % 2], 
-		// 	input_mnist[n % 2], tflite::INPUT_TYPE::MNIST);
-
+			input_iamgenet_quant[n % 2], tflite::INPUT_TYPE::COCO416);
+    
     clock_gettime(CLOCK_MONOTONIC, &begin);
 
-		if(runtime.DebugCoInvoke() != kTfLiteOk){
+		if(runtime.Invoke() != kTfLiteOk){
       std::cout << "Invoke ERROR" << "\n";
       return -1;
     }
