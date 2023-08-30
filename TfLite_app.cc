@@ -291,19 +291,27 @@ int main(int argc, char* argv[])
 {
 	const char* first_model;
 	const char* second_model;
+	std::string sequence_name, log_path;
 	bool bUseTwoModel = false;
 	if (argc == 2) {
 		std::cout << "Got One Model \n";
 		first_model = argv[1];
-	}
-	else if(argc > 2){
+	}else if(argc == 3){
 		std::cout << "Got Two Model \n";
 		bUseTwoModel = true;
 		first_model = argv[1];
 		second_model = argv[2];
 	}
+	else if(argc > 4){
+		std::cout << "Got Two Model and log setups\n";
+		bUseTwoModel = true;
+		first_model = argv[1];
+		second_model = argv[2];
+		sequence_name = argv[3];
+		log_path = argv[4];
+	}
 	else{
-			fprintf(stderr, "minimal <tflite model>\n");
+			fprintf(stderr, "<tflite model> <tflite model> <sequence_name> <log_path>\n");
 			return 1;
 	}
 	vector<cv::Mat> input_mnist;
@@ -336,10 +344,13 @@ int main(int argc, char* argv[])
   double response_time = 0;
   struct timespec begin, end;
   int n = 0;
+
+	// Inittialize runtime
 	tflite::TfLiteRuntime runtime(RUNTIME_SOCK, SCHEDULER_SOCK,
 																	 first_model, second_model, tflite::INPUT_TYPE::COCO416);
-  
-
+  runtime.SetTestSequenceName(sequence_name);
+	runtime.SetLogPath(log_path);
+	runtime.InitLogFile();
 	// Output vector
 	std::vector<std::vector<float>*>* output;
 	std::vector<std::vector<uint8_t>*>* uintoutput;
@@ -359,7 +370,7 @@ int main(int argc, char* argv[])
     clock_gettime(CLOCK_MONOTONIC, &end);
     if(n > 0){ // drop first invoke's data.
       double temp_time = (end.tv_sec - begin.tv_sec) + ((end.tv_nsec - begin.tv_nsec) / 1000000000.0);
-			printf("t %d.%d latency %.6f \n", begin.tv_sec ,begin.tv_nsec ,temp_time);
+			printf("n %d latency %.6f \n", n, temp_time);
       response_time += temp_time;
     }
     n++;
