@@ -320,34 +320,39 @@ class co_execution_combination:
             nHWr = list(product(plan_ratio_hw, repeat=1)) # hw product
             nRAr = [nCWr, nHWr]
             # need to change model file
-            for i in range(len(nHWr)): # len(nHWr) == len(nCWr)
-                count = 0 # for checking ratio in combination(nCWr)
-                k = 0
-                while k < layer:
-                    if(name[k] == 'SQUEEZE\n'): # fallback subgraph
-                        f.write('{0}\n'.format(k))
-                        f.write('{0}\n'.format(k+1))
-                        f.write('{0}\n'.format(self.resource))
-                        f.write('{0}\n'.format(nCWr[i][0]))
-                        k += 1
-                    elif k == 30:
-                        f.write('{0}\n'.format(k))
-                        f.write('{0}\n'.format(k+1))
-                        f.write('{0}\n'.format(0))
-                        f.write('{0}\n'.format(0))
-                        f.write('{0}\n'.format(-1))
-                        f.write('{0}\n'.format(-2))
-                        k+=1
-                    else:
-                        f.write('{0}\n'.format(k))
-                        while True:
-                            if(name[k] == 'SQUEEZE\n'): # condition has to change by model structure)
-                                break
-                            else:
-                                k += 1
-                        f.write('{0}\n'.format(k))
-                        f.write('{0}\n'.format(self.resource))
-                        f.write('{0}\n'.format(nHWr[i][0]))
+            for i in range(len(nCWr)):
+                for j in range(len(nHWr)): # len(nHWr) == len(nCWr)
+                    count = 0 # for checking ratio in combination(nCWr)
+                    k = 0
+                    while k < layer:
+                        if k == 28:
+                            f.write('{0}\n'.format(k))
+                            f.write('{0}\n'.format(k+1))
+                            f.write('{0}\n'.format(self.resource))
+                            f.write('{0}\n'.format(nCWr[i][0]))
+                            k+=1
+                        elif k >= 29:
+                            f.write('{0}\n'.format(k))
+                            while True:
+                                if k==30:
+                                    break
+                                k += 1 
+                            f.write('{0}\n'.format(k))
+                            f.write('{0}\n'.format(0))
+                            f.write('{0}\n'.format(0))
+                            f.write('{0}\n'.format(-1))
+                            f.write('{0}\n'.format(-2))
+                            k+=1
+                        else:
+                            f.write('{0}\n'.format(k))
+                            while True:
+                                if(k==28 or name[k] == 'SQUEEZE\n'): # condition has to change by model structure)
+                                    break
+                                else:
+                                    k += 1
+                            f.write('{0}\n'.format(k))
+                            f.write('{0}\n'.format(self.resource))
+                            f.write('{0}\n'.format(nHWr[j][0]))
             f.close()
             r.close()
     def efficient_combination(self):
