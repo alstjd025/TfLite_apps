@@ -21,7 +21,9 @@ efficientnet_params = h_dir + '/params/model/efficient'
 mobilenet_params = h_dir + '/params/model/mobilenet'
 generated_params = h_dir + '/params/generated_sequences'
 param_folders = [yolo_params, efficientnet_params, mobilenet_params]
-
+model_and_params = {'yolov4-tiny-416_ieie.tflite' : yolo_params,
+                    'efficientnet_lite4_fp32_2.tflite' : efficientnet_params,
+                    'mobilenet_v1_10_224_fp32.tflite' : mobilenet_params}
 
 exp_name = "Delegation_test"
 exp_desc = "gpu_delegation_only_all_combinations"
@@ -81,26 +83,26 @@ def generate_exp_sequences_(param_folder_path):
           f = open(output_file_name, 'w')
           for line in file:
             stripped_line = line.strip()
-            f.write(stripped_line + '\n')
             if(stripped_line == '-2'):
               f.close()
               sequence += 1
               output_file_name = os.path.join(output_file_path, str(sequence))
               f = open(output_file_name, 'w')
+          os.remove(output_file_name)
         print("=" * 40)  # line seperate
   except Exception as e:
     print(f"An error occurred: {e}")
     
   
   
-def scheduler_thread():
+def scheduler_thread(param):
   print("Scheduler thread")
-  scheduler = subprocess.run([scheduler_dir, ])
+  scheduler = subprocess.run([scheduler_dir, param])
   
   
-def runtime_thread():
+def runtime_thread(model):
   print("Runtime thread")  
-  runtime = subprocess.run([app_dir, ])
+  runtime = subprocess.run([app_dir, model])
   
   
 def main():
@@ -110,11 +112,19 @@ def main():
   print(exp_date_time_string)
   for folder in param_folders:
     generate_exp_sequences_(folder)
+  for model, param in model_and_params.items():
+    # Get param file
+    file_list = os.listdir(os.path.join(param, 'sequences'))
+    for file_name in file_list:
+      sequence_list = os.listdir(file_name)
+      for sequence in sequence_list:
+        sched_thd = Thread(target=scheduler_thread, args=(param))
+        time.sleep(1)
+        runt_thd = Thread(target=runtime_thread, args=(model))
+    
+      
   # for model in models:
   #   for sequence in global_sequence:
-  #     sched_thd = Thread(target=scheduler_thread, args=())
-  #     time.sleep(1)
-  #     runt_thd = Thread(target=runtime_thread, args=())
     
   
 if __name__ == "__main__":
