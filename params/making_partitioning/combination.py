@@ -115,7 +115,6 @@ class delegation_combination:
         nCWr = list(product(plan_ratio_cw, repeat=not_fallback))
         nHWr = list(product(plan_ratio_cw, repeat=not_fallback))
         # need to change model file
-        print(nREr)
         for j in range(len(nREr)):
             count = 0 # for checking resource type in combination(nREr)
             k = 0
@@ -128,14 +127,6 @@ class delegation_combination:
                     m.write('{0}\n'.format(-1))
                     m.write('{0}\n'.format(-2))
                     k += 2
-                # elif k == 30:
-                #     m.write('{0}\n'.format(k))
-                #     m.write('{0}\n'.format(k+1))
-                #     m.write('{0}\n'.format(0))
-                #     m.write('{0}\n'.format(0))
-                #     m.write('{0}\n'.format(-1))
-                #     m.write('{0}\n'.format(-2))
-                #     k+=1
                 else:
                     m.write('{0}\n'.format(k))
                     while True:
@@ -168,7 +159,7 @@ class delegation_combination:
                 if not lines:
                     break
                 num[idx], name[idx] = lines.split(' ')
-                if(name[idx] == 'RESHAPE\n'): # condition has to change by model structure
+                if(idx == 115): # condition has to change by model structure
                     plan_idx += 1
                 idx += 1
         not_fallback = plan_idx+1
@@ -182,31 +173,23 @@ class delegation_combination:
             count = 0 # for checking resource type in combination(nREr)
             k = 0
             while k < layer:
-                if(name[k] == 'RESHAPE\n'): # condition has to change by model structure
-                    m.write('{0}\n'.format(k))
-                    m.write('{0}\n'.format(k+1))
-                    m.write('{0}\n'.format(0))
-                    m.write('{0}\n'.format(0))
-                    k += 1
-                elif k == 116:
+                if(k==114): # condition has to change by model structure
                     m.write('{0}\n'.format(k))
                     while True:
-                        if k==layer:
+                        if k == 118:
                             break
-                        k+=1
+                        k += 1
                     m.write('{0}\n'.format(k))
                     m.write('{0}\n'.format(nREr[j][count]))
                     m.write('{0}\n'.format(0))
                     m.write('{0}\n'.format(-1))
                     m.write('{0}\n'.format(-2))
-                    k+=1
                 else:
                     m.write('{0}\n'.format(k))
                     while True:
-                        if(name[k] == 'RESHAPE\n'): # condition has to change by model structure)
+                        if(k == 114): # condition has to change by model structure)
                             break
-                        else:
-                            k += 1
+                        k += 1
                     m.write('{0}\n'.format(k))
                     m.write('{0}\n'.format(nREr[j][count]))
                     count+=1
