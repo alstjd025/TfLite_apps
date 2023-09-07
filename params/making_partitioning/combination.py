@@ -10,17 +10,15 @@ plan_ratio_cw = [2, 3, 4, 5, 6, 7, 8]
 plan_ratio_hw = [12, 13, 14, 15, 16, 17, 18] #CW/HW ratio
 
 class delegation_combination:
-    def __init__(self, flag, name):
-        self.resource = flag
-        self.name = name
-    def yolo_combination(self):
-        file_name = "../model/yolo/yolo_combination_" + self.name
+    # def __init__(self):
+    def yolo_combination(self, resource, f_name):
+        file_name = "../model/yolo/yolo_combination_" + f_name
         f = open(file_name, 'w')
         # layer num
         layer = 152
 
         # change to layer by test case
-        plan_resource = [TF_P_PLAN_CPU, self.resource] #resource type
+        plan_resource = [TF_P_PLAN_CPU, resource] #resource type
         
         plan_idx = 0 # subgraph num
 
@@ -67,7 +65,7 @@ class delegation_combination:
                         if k==152: break
                         k+=1
                     f.write('{0}\n'.format(k))
-                    if(self.resource == 3):
+                    if(resource == 3):
                         f.write('{0}\n'.format(3))
                     else:
                         f.write('{0}\n'.format(0))
@@ -87,14 +85,14 @@ class delegation_combination:
         f.close()
         r.close()
 
-    def mobilenet_combination(self):
-        file_name = "../model/mobilenet/mobilenet_combination_" + self.name
+    def mobilenet_combination(self, resource, f_name):
+        file_name = "../model/mobilenet/mobilenet_combination_" + f_name
         m = open(file_name, 'w')
         # layer num
         layer = 31
 
         # change to layer by test case
-        plan_resource = [TF_P_PLAN_CPU, self.resource] #resource type
+        plan_resource = [TF_P_PLAN_CPU, resource] #resource type
         plan_idx = 0 # subgraph num
 
         idx = 0
@@ -110,32 +108,34 @@ class delegation_combination:
                 if(name[idx] == 'SQUEEZE\n'): # condition has to change by model structure
                     plan_idx += 1
                 idx += 1
-        not_fallback = plan_idx+1
+        not_fallback = plan_idx
         # per subgraph's usable resource set
         # repeat = fallback num + 1(subgraph in no fallback layer)
         nREr = list(product(plan_resource, repeat=not_fallback))
         nCWr = list(product(plan_ratio_cw, repeat=not_fallback))
         nHWr = list(product(plan_ratio_cw, repeat=not_fallback))
         # need to change model file
+        print(nREr)
         for j in range(len(nREr)):
             count = 0 # for checking resource type in combination(nREr)
             k = 0
             while k < layer:
                 if(name[k] == 'SQUEEZE\n'): # condition has to change by model structure
                     m.write('{0}\n'.format(k))
-                    m.write('{0}\n'.format(k+1))
-                    m.write('{0}\n'.format(0))
-                    m.write('{0}\n'.format(0))
-                    count += 1
-                    k += 1
-                elif k == 30:
-                    m.write('{0}\n'.format(k))
-                    m.write('{0}\n'.format(k+1))
+                    m.write('{0}\n'.format(k+2))
                     m.write('{0}\n'.format(0))
                     m.write('{0}\n'.format(0))
                     m.write('{0}\n'.format(-1))
                     m.write('{0}\n'.format(-2))
-                    k+=1
+                    k += 2
+                # elif k == 30:
+                #     m.write('{0}\n'.format(k))
+                #     m.write('{0}\n'.format(k+1))
+                #     m.write('{0}\n'.format(0))
+                #     m.write('{0}\n'.format(0))
+                #     m.write('{0}\n'.format(-1))
+                #     m.write('{0}\n'.format(-2))
+                #     k+=1
                 else:
                     m.write('{0}\n'.format(k))
                     while True:
@@ -145,18 +145,18 @@ class delegation_combination:
                             k += 1
                     m.write('{0}\n'.format(k))
                     m.write('{0}\n'.format(nREr[j][count]))
-                    m.write('{0}\n'.format(plan_ratio_cw[0]))
+                    m.write('{0}\n'.format(0))
         m.close()
         l.close()
 
-    def efficient_combination(self):
-        file_name = "../model/efficient/efficient_combination_" + self.name
+    def efficient_combination(self, resource, f_name):
+        file_name = "../model/efficient/efficient_combination_" + f_name
         m = open(file_name, 'w')
         # layer num
         layer = 118
 
         # change to layer by test case
-        plan_resource = [TF_P_PLAN_CPU, self.resource] #resource type
+        plan_resource = [TF_P_PLAN_CPU, resource] #resource type
         plan_idx = 0 # subgraph num
         idx = 0
         # change to layer by models
@@ -187,7 +187,6 @@ class delegation_combination:
                     m.write('{0}\n'.format(k+1))
                     m.write('{0}\n'.format(0))
                     m.write('{0}\n'.format(0))
-                    count += 1
                     k += 1
                 elif k == 116:
                     m.write('{0}\n'.format(k))
@@ -196,8 +195,8 @@ class delegation_combination:
                             break
                         k+=1
                     m.write('{0}\n'.format(k))
+                    m.write('{0}\n'.format(nREr[j][count]))
                     m.write('{0}\n'.format(0))
-                    m.write('{0}\n'.format(plan_ratio_cw[0]))
                     m.write('{0}\n'.format(-1))
                     m.write('{0}\n'.format(-2))
                     k+=1
@@ -210,22 +209,23 @@ class delegation_combination:
                             k += 1
                     m.write('{0}\n'.format(k))
                     m.write('{0}\n'.format(nREr[j][count]))
-                    m.write('{0}\n'.format(plan_ratio_cw[0]))
+                    count+=1
+                    m.write('{0}\n'.format(0))
         m.close()
         l.close()
 
 class co_execution_combination:
-    def __init__(self, flag, name):
-        self.resource = flag
-        self.name = name
-    def yolo_combination(self):
-        file_name = "../model/yolo/yolo_combination_" + self.name
+    # def __init__(self, flag, name):
+    #     resource = flag
+    #     self.name = name
+    def yolo_combination(self, resource, f_name):
+        file_name = "../model/yolo/yolo_combination_" + f_name
         f = open(file_name, 'w')
         # layer num
         layer = 152
 
         # change to layer by test case
-        plan_resource = [TF_P_PLAN_CPU, self.resource] #resource type
+        plan_resource = [TF_P_PLAN_CPU, resource] #resource type
         
         plan_idx = 0 # subgraph num
 
@@ -283,19 +283,19 @@ class co_execution_combination:
                         else:
                             k += 1
                     f.write('{0}\n'.format(k))
-                    f.write('{0}\n'.format(self.resource))
+                    f.write('{0}\n'.format(resource))
                     f.write('{0}\n'.format(nHWr[j][count]))
         f.close()
         r.close()
 
-    def mobilenet_combination(self):
-            file_name = "../model/mobilenet/mobilenet_combination_" + self.name
+    def mobilenet_combination(self, resource, f_name):
+            file_name = "../model/mobilenet/mobilenet_combination_" + f_name 
             f = open(file_name, 'w')
             # layer num
             layer = 31
 
             # change to layer by test case
-            plan_resource = [TF_P_PLAN_CPU, self.resource] #resource type
+            plan_resource = [TF_P_PLAN_CPU, resource] #resource type
             
             plan_idx = 0 # subgraph num
 
@@ -328,13 +328,13 @@ class co_execution_combination:
                         if k == 28:
                             f.write('{0}\n'.format(k))
                             f.write('{0}\n'.format(k+1))
-                            f.write('{0}\n'.format(self.resource))
+                            f.write('{0}\n'.format(resource))
                             f.write('{0}\n'.format(nCWr[i][0]))
                             k+=1
                         elif k >= 29:
                             f.write('{0}\n'.format(k))
                             while True:
-                                if k==30:
+                                if k==31:
                                     break
                                 k += 1 
                             f.write('{0}\n'.format(k))
@@ -351,18 +351,18 @@ class co_execution_combination:
                                 else:
                                     k += 1
                             f.write('{0}\n'.format(k))
-                            f.write('{0}\n'.format(self.resource))
+                            f.write('{0}\n'.format(resource))
                             f.write('{0}\n'.format(nHWr[j][0]))
             f.close()
             r.close()
-    def efficient_combination(self):
-            file_name = "../model/efficient/efficient_combination_" + self.name
+    def efficient_combination(self, resource, f_name):
+            file_name = "../model/efficient/efficient_combination_" + f_name
             f = open(file_name, 'w')
             # layer num
             layer = 118
 
             # change to layer by test case
-            plan_resource = [TF_P_PLAN_CPU, self.resource] #resource type
+            plan_resource = [TF_P_PLAN_CPU, resource] #resource type
             
             plan_idx = 0 # subgraph num
 
@@ -407,22 +407,21 @@ class co_execution_combination:
                             else:
                                 k += 1
                         f.write('{0}\n'.format(k))
-                        f.write('{0}\n'.format(self.resource))
+                        f.write('{0}\n'.format(resource))
                         f.write('{0}\n'.format(nHWr[i][0]))
             f.close()
             r.close()
 def main():
+    delegate = delegation_combination()
     for i in range(len(file_)):
         if(i==0 or i==1 or i==3): #just make file for delegation
-            delegate = delegation_combination(i, file_[i])
-            delegate.yolo_combination()
-            delegate.mobilenet_combination()
-            delegate.efficient_combination()
-
+            delegate.yolo_combination(i, file_[i])
+            delegate.mobilenet_combination(i, file_[i])
+            delegate.efficient_combination(i, file_[i])
+    co_e = co_execution_combination()
     for i in range(len(file_)):
         if(i==2 or i==4): #just make file for delegation
-            co_e = co_execution_combination(i, file_[i])
-            co_e.yolo_combination()
-            co_e.mobilenet_combination()
-            co_e.efficient_combination()
+            co_e.yolo_combination(i, file_[i])
+            co_e.mobilenet_combination(i, file_[i])
+            co_e.efficient_combination(i, file_[i])
 main()
