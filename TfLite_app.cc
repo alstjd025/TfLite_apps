@@ -351,6 +351,7 @@ int main(int argc, char* argv[])
   runtime.SetTestSequenceName(sequence_name);
 	runtime.SetLogPath(log_path);
 	runtime.InitLogFile();
+	runtime.WriteInitStateLog();
 	// Output vector
 	std::vector<std::vector<float>*>* output;
 	std::vector<std::vector<uint8_t>*>* uintoutput;
