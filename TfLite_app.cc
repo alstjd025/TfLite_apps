@@ -287,11 +287,23 @@ void ParseLabels(){
 	std::cout << "Got imagenet labels : " << imagenet_label.size() << "\n";
 }
 
+tflite::INPUT_TYPE GetInputTypeFromString(string input_type){
+  if(strcmp(input_type.c_str(), "IMAGENET224") == 0){
+    return tflite::INPUT_TYPE::IMAGENET224;
+  }else if(strcmp(input_type.c_str(), "IMAGENET300") == 0){
+    return tflite::INPUT_TYPE::IMAGENET300;
+  }else if(strcmp(input_type.c_str(), "COCO416") == 0){
+    return tflite::INPUT_TYPE::COCO416;
+  }else{
+    return tflite::INPUT_TYPE::USER;
+  }
+}
+
 int main(int argc, char* argv[])
 {
 	const char* first_model;
 	const char* second_model;
-	std::string sequence_name, log_path;
+	std::string input_type_str, sequence_name, log_path;
 	bool bUseTwoModel = false;
 	if (argc == 2) {
 		std::cout << "Got One Model \n";
@@ -302,30 +314,33 @@ int main(int argc, char* argv[])
 		first_model = argv[1];
 		second_model = argv[2];
 	}
-	else if(argc > 4){
-		std::cout << "Got Two Model and log setups\n";
+	else if(argc > 5){
+		std::cout << "Got Two Model and log setups, input type\n";
 		bUseTwoModel = true;
 		first_model = argv[1];
 		second_model = argv[2];
-		sequence_name = argv[3];
-		log_path = argv[4];
+		input_type_str = argv[3];
+		sequence_name = argv[4];
+		log_path = argv[5];
 	}
 	else{
-			fprintf(stderr, "<tflite model> <tflite model> <sequence_name> <log_path>\n");
+			fprintf(stderr, "<tflite model> <tflite model> <input_type> <sequence_name> <log_path>\n");
+			fprintf(stderr, "input_type : IMAGENET224, IMAGENET300, COCO416\n");
 			return 1;
 	}
+
 	vector<cv::Mat> input_mnist;
 	vector<cv::Mat> input_imagenet;
 	vector<cv::Mat> input_iamgenet_quant;
 	vector<unsigned char> arr;
 
-	#ifdef mnist
-	std::cout << "Loading images \n";
-	read_Mnist("images/mnist/train-images-idx3-ubyte", input_mnist);
-	std::cout << "Loading Labels \n";
-	read_Mnist_Label("labels/mnist/train-labels-idx1-ubyte", arr);
-	std::cout << "Loading Mnist Image, Label Complete \n";
-	#endif
+	// #ifdef mnist
+	// std::cout << "Loading images \n";
+	// read_Mnist("images/mnist/train-images-idx3-ubyte", input_mnist);
+	// std::cout << "Loading Labels \n";
+	// read_Mnist_Label("labels/mnist/train-labels-idx1-ubyte", arr);
+	// std::cout << "Loading Mnist Image, Label Complete \n";
+	// #endif
 
 	#ifdef imagenet
 	read_image_opencv("/home/nvidia/TfLite_apps/images/coco/banana_0.jpg", input_imagenet, tflite::INPUT_TYPE::COCO416);
@@ -344,28 +359,39 @@ int main(int argc, char* argv[])
   double response_time = 0;
   struct timespec begin, end;
   int n = 0;
-
+	std::cout << "Initialize runtime" << "\n";
 	// Inittialize runtime
+	tflite::INPUT_TYPE input_type;
+	input_type = GetInputTypeFromString(input_type_str);
 	tflite::TfLiteRuntime runtime(RUNTIME_SOCK, SCHEDULER_SOCK,
-																	 first_model, second_model, tflite::INPUT_TYPE::COCO416);
+																	 first_model, second_model, input_type);
+	if(runtime.GetRuntimeState() != tflite::RuntimeState::INVOKE_){
+		std::cout << "Runtime intialization failed" << "\n";
+		runtime.ShutdownScheduler();
+		return 0;
+	}
+	// Set input type for interpreter
   runtime.SetTestSequenceName(sequence_name);
 	runtime.SetLogPath(log_path);
 	runtime.InitLogFile();
 	runtime.WriteInitStateLog();
+
 	// Output vector
 	std::vector<std::vector<float>*>* output;
 	std::vector<std::vector<uint8_t>*>* uintoutput;
 	ParseLabels();
+	std::cout << "Loop start" << "\n";
+	
   while(n < OUT_SEQ){
-    // std::cout << "[LiteRuntime] invoke : " << n << "\n";
+    std::cout << "[LiteRuntime] invoke : " << n << "\n";
     runtime.FeedInputToModelDebug(first_model, input_imagenet[n % 2], 
-			input_iamgenet_quant[n % 2], tflite::INPUT_TYPE::COCO416);
+			input_iamgenet_quant[n % 2]);
     
     clock_gettime(CLOCK_MONOTONIC, &begin);
-
 		if(runtime.Invoke() != kTfLiteOk){
       std::cout << "Invoke ERROR" << "\n";
-      return -1;
+			runtime.ShutdownScheduler();
+      exit(-1);
     }
 		
     clock_gettime(CLOCK_MONOTONIC, &end);
@@ -383,6 +409,7 @@ int main(int argc, char* argv[])
 		// ParseOutput(uintoutput);
 		// ParseOutput(output);
   }
+	runtime.ShutdownScheduler();
   response_time = response_time / OUT_SEQ;
   printf("Average response time for %d invokes : %.6fs \n", OUT_SEQ, response_time);
 }
