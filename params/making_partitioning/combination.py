@@ -35,7 +35,7 @@ class delegation_combination:
                 if(name[idx] == 'SPLIT\n'): # condition has to change by model structure
                     plan_idx += 1
                 idx += 1
-        not_fallback = plan_idx
+        not_fallback = plan_idx + 1
         # per subgraph's usable resource set
         # repeat = fallback num + 1(subgraph in no fallback layer)
         nREr = list(product(plan_resource, repeat=not_fallback))
@@ -56,7 +56,7 @@ class delegation_combination:
                 elif k >= 33 and k < 55:
                     f.write('{0}\n'.format(k))
                     f.write('{0}\n'.format(55))
-                    f.write('{0}\n'.format(1))
+                    f.write('{0}\n'.format(nREr[j][count]))
                     f.write('{0}\n'.format(0))
                     k = 55
                 elif k > 54:
@@ -209,6 +209,7 @@ class co_execution_combination:
 
         # change to layer by test case
         plan_resource = [TF_P_PLAN_CPU, resource] #resource type
+        sub7_resource = [TF_P_PLAN_CPU, TF_P_PLAN_GPU, TF_P_PLAN_CPU_XNN]
         
         plan_idx = 0 # subgraph num
 
@@ -228,46 +229,47 @@ class co_execution_combination:
         not_fallback = plan_idx
         # per subgraph's usable resource set
         # repeat = fallback num + 1(subgraph in no fallback layer)
-        nREr = list(product(plan_resource, repeat=not_fallback)) # resource product
+        nREr = list(product(sub7_resource, repeat=1)) # for subgraph 7(not co_e, but resource type case is 3[cpu, gpu, xnn])
         nHWr = list(product(plan_ratio_hw, repeat=not_fallback)) # hw product
         # need to change model file
         for j in range(len(nHWr)): # len(nHWr) == len(nCWr)
-            count = 0 # for checking ratio in combination(nCWr)
-            k = 0
-            while k < layer: # CW
-                if(name[k] == 'SPLIT\n'): # fallback subgraph
-                    f.write('{0}\n'.format(k))
-                    f.write('{0}\n'.format(k+1))
-                    f.write('{0}\n'.format(0))
-                    f.write('{0}\n'.format(0))
-                    count += 1 
-                    k += 1
-                elif k >= 33 and k < 55:
-                    f.write('{0}\n'.format(k))
-                    f.write('{0}\n'.format(55))
-                    f.write('{0}\n'.format(1))
-                    f.write('{0}\n'.format(0))
-                    k = 55
-                elif k > 54: # last subgraph 55~152
-                    f.write('{0}\n'.format(k))
-                    while True:
-                        if k==152: break
-                        k+=1
-                    f.write('{0}\n'.format(k))
-                    f.write('{0}\n'.format(0))
-                    f.write('{0}\n'.format(0))
-                    f.write('{0}\n'.format(-1))
-                    f.write('{0}\n'.format(-2))
-                else:
-                    f.write('{0}\n'.format(k))
-                    while True:
-                        if(num[k] == '33' or name[k] == 'SPLIT\n'): # condition has to change by model structure)
-                            break
-                        else:
-                            k += 1
-                    f.write('{0}\n'.format(k))
-                    f.write('{0}\n'.format(resource))
-                    f.write('{0}\n'.format(nHWr[j][count]))
+            for i in range(len(nREr)):
+                count = 0 # for checking ratio in combination(nCWr)
+                k = 0
+                while k < layer: # CW
+                    if(name[k] == 'SPLIT\n'): # fallback subgraph
+                        f.write('{0}\n'.format(k))
+                        f.write('{0}\n'.format(k+1))
+                        f.write('{0}\n'.format(0))
+                        f.write('{0}\n'.format(0))
+                        count += 1 
+                        k += 1
+                    elif k >= 33 and k < 55:
+                        f.write('{0}\n'.format(k))
+                        f.write('{0}\n'.format(55))
+                        f.write('{0}\n'.format(nREr[i][0]))
+                        f.write('{0}\n'.format(0))
+                        k = 55
+                    elif k > 54: # last subgraph 55~152
+                        f.write('{0}\n'.format(k))
+                        while True:
+                            if k==152: break
+                            k+=1
+                        f.write('{0}\n'.format(k))
+                        f.write('{0}\n'.format(0))
+                        f.write('{0}\n'.format(0))
+                        f.write('{0}\n'.format(-1))
+                        f.write('{0}\n'.format(-2))
+                    else:
+                        f.write('{0}\n'.format(k))
+                        while True:
+                            if(num[k] == '33' or name[k] == 'SPLIT\n'): # condition has to change by model structure)
+                                break
+                            else:
+                                k += 1
+                        f.write('{0}\n'.format(k))
+                        f.write('{0}\n'.format(resource))
+                        f.write('{0}\n'.format(nHWr[j][count]))
         f.close()
         r.close()
 
