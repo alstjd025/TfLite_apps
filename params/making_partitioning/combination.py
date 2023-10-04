@@ -111,7 +111,11 @@ class delegation_combination:
         not_fallback = plan_idx
         # per subgraph's usable resource set
         # repeat = fallback num + 1(subgraph in no fallback layer)
-        nREr = list(product(plan_resource, repeat=not_fallback))
+        if f_name == 'cpu' or f_name == 'gpu':
+            nREr = list(product(plan_resource, repeat=not_fallback))
+        else:
+            nREr = list(product(plan_resource, repeat=not_fallback+1))
+        print(nREr)
         nCWr = list(product(plan_ratio_cw, repeat=not_fallback))
         nHWr = list(product(plan_ratio_cw, repeat=not_fallback))
         # need to change model file
@@ -122,7 +126,10 @@ class delegation_combination:
                 if(name[k] == 'SQUEEZE\n'): # condition has to change by model structure
                     m.write('{0}\n'.format(k))
                     m.write('{0}\n'.format(k+2))
-                    m.write('{0}\n'.format(0))
+                    if f_name == 'cpu' or f_name == 'gpu':
+                        m.write('{0}\n'.format(0))
+                    else:
+                        m.write('{0}\n'.format(nREr[j][count]))
                     m.write('{0}\n'.format(0))
                     m.write('{0}\n'.format(-1))
                     m.write('{0}\n'.format(-2))
@@ -136,6 +143,7 @@ class delegation_combination:
                             k += 1
                     m.write('{0}\n'.format(k))
                     m.write('{0}\n'.format(nREr[j][count]))
+                    if f_name == 'xnn': count += 1
                     m.write('{0}\n'.format(0))
         m.close()
         l.close()
@@ -400,13 +408,13 @@ def main():
     delegate = delegation_combination()
     for i in range(len(file_)):
         if(i==0 or i==1 or i==3): #just make file for delegation
-            delegate.yolo_combination(i, file_[i])
+            # delegate.yolo_combination(i, file_[i])
             delegate.mobilenet_combination(i, file_[i])
-            delegate.efficient_combination(i, file_[i])
-    co_e = co_execution_combination()
-    for i in range(len(file_)):
-        if(i==2 or i==4): #just make file for delegation
-            co_e.yolo_combination(i, file_[i])
-            co_e.mobilenet_combination(i, file_[i])
-            co_e.efficient_combination(i, file_[i])
+            # delegate.efficient_combination(i, file_[i])
+    # co_e = co_execution_combination()
+    # for i in range(len(file_)):
+    #     if(i==2 or i==4): #just make file for delegation
+    #         # co_e.yolo_combination(i, file_[i])
+    #         co_e.mobilenet_combination(i, file_[i])
+    #         # co_e.efficient_combination(i, file_[i])
 main()
