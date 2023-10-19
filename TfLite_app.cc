@@ -4,11 +4,11 @@
 #include <numeric>
 #include <ostream>
 
-#define OUT_SEQ 20
+#define OUT_SEQ 1
 #define mnist 
 #define imagenet
 // #define lanenet
-#define ODROID
+// #define ODROID
 
 using namespace cv;
 using namespace std;
@@ -279,8 +279,8 @@ void ParseOutput(std::vector<std::vector<uint8_t>*>* output){
 }
 
 void ParseLabels(){
-	std::string coco_file = "label/coco_label.txt";
-	std::string imagenet_file = "label/imagenet_label.txt";
+	std::string coco_file = "labels/coco_label.txt";
+	std::string imagenet_file = "labels/imagenet_label.txt";
 	std::ifstream coco_fd, imagenet_fd;
 	coco_fd.open(coco_file);
 	imagenet_fd.open(imagenet_file);
@@ -343,6 +343,8 @@ int main(int argc, char* argv[])
 	vector<cv::Mat> input_imagenet;
 	vector<cv::Mat> input_iamgenet_quant;
 	vector<unsigned char> arr;
+	tflite::INPUT_TYPE input_type;
+	input_type = GetInputTypeFromString(input_type_str);
 
 	#ifdef mnist
 	std::cout << "Loading images \n";
@@ -351,17 +353,19 @@ int main(int argc, char* argv[])
 	// read_Mnist_Label("labels/mnist/train-labels-idx1-ubyte", arr);
 	// std::cout << "Loading Mnist Image, Label Complete \n";
 	#endif
+	
 
 	#ifdef imagenet
 		#ifndef ODROID
-	read_image_opencv("/home/nvidia/TfLite_apps/images/coco/keyboard.jpg", input_imagenet, tflite::INPUT_TYPE::COCO416);
-	read_image_opencv("/home/nvidia/TfLite_apps/images/coco/desk.jpg", input_imagenet, tflite::INPUT_TYPE::COCO416);
-	// read_image_opencv_quant("/home/nvidia/TfLite_apps/images/coco/banana_0.jpg", input_iamgenet_quant, tflite::INPUT_TYPE::COCO416);
-	// read_image_opencv_quant("/home/nvidia/TfLite_apps/images/coco/orange.jpg", input_iamgenet_quant, tflite::INPUT_TYPE::COCO416);
+	read_image_opencv("/home/nvidia/TfLite_apps/images/imagenet/banana.jpg", input_imagenet, input_type);
+	// read_image_opencv("/home/nvidia/TfLite_apps/images/coco/keyboard.jpg", input_imagenet, input_type);
+	// read_image_opencv("/home/nvidia/TfLite_apps/images/coco/desk.jpg", input_imagenet, input_type);
+	// read_image_opencv_quant("/home/nvidia/TfLite_apps/images/coco/banana_0.jpg", input_iamgenet_quant, input_type);
+	// read_image_opencv_quant("/home/nvidia/TfLite_apps/images/coco/orange.jpg", input_iamgenet_quant, input_type);
 		#endif
 		#ifdef ODROID
-		read_image_opencv("/home/odroid/TfLite_apps/images/coco/orange.jpg", input_imagenet, tflite::INPUT_TYPE::COCO416);
-		read_image_opencv("/home/odroid/TfLite_apps/images/coco/banana_0.jpg", input_imagenet, tflite::INPUT_TYPE::COCO416);
+		read_image_opencv("/home/odroid/TfLite_apps/images/coco/orange.jpg", input_imagenet, input_type);
+		read_image_opencv("/home/odroid/TfLite_apps/images/coco/banana_0.jpg", input_imagenet, input_type);
 		#endif
 	#endif
 
@@ -377,8 +381,6 @@ int main(int argc, char* argv[])
   int n = 0;
 	std::cout << "Initialize runtime" << "\n";
 	// Inittialize runtime
-	tflite::INPUT_TYPE input_type;
-	input_type = GetInputTypeFromString(input_type_str);
 	tflite::TfLiteRuntime runtime(RUNTIME_SOCK, SCHEDULER_SOCK,
 																	 first_model, second_model, input_type);
 	if(runtime.GetRuntimeState() != tflite::RuntimeState::INVOKE_){
