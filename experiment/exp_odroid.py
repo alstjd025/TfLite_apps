@@ -28,8 +28,8 @@ model_and_params = {'yolov4-tiny-416_ieie.tflite' : yolo_params,
                     'efficientnet_lite4_fp32_2.tflite' : efficientnet_params,
                     'mobilenet_v1_10_224_fp32.tflite' : mobilenet_params}
 
-exp_name = "Delegation_test"
-exp_desc = "gpu_delegation_only_all_combinations"
+exp_name = "Subgraph_test"
+exp_desc = "subgraph_partition_delegation_test"
 exp_date = now.date()
 exp_time = now.time()
 exp_date_time_string = now.strftime('%Y_%m_%d_%Hh_%Mm_%Ss')

@@ -4,7 +4,7 @@
 #include <numeric>
 #include <ostream>
 
-#define OUT_SEQ 1
+#define OUT_SEQ 100
 #define mnist 
 #define imagenet
 // #define lanenet
@@ -358,6 +358,7 @@ int main(int argc, char* argv[])
 	#ifdef imagenet
 		#ifndef ODROID
 	read_image_opencv("/home/nvidia/TfLite_apps/images/imagenet/banana.jpg", input_imagenet, input_type);
+	read_image_opencv("/home/nvidia/TfLite_apps/images/imagenet/orange.jpg", input_imagenet, input_type);
 	// read_image_opencv("/home/nvidia/TfLite_apps/images/coco/keyboard.jpg", input_imagenet, input_type);
 	// read_image_opencv("/home/nvidia/TfLite_apps/images/coco/desk.jpg", input_imagenet, input_type);
 	// read_image_opencv_quant("/home/nvidia/TfLite_apps/images/coco/banana_0.jpg", input_iamgenet_quant, input_type);
@@ -375,6 +376,13 @@ int main(int argc, char* argv[])
 	read_image_opencv_quant("road.jpg", input_iamgenet_quant, tflite::INPUT_TYPE::IMAGENET416);
 	read_image_opencv_quant("road_2.jpg", input_iamgenet_quant, tflite::INPUT_TYPE::IMAGENET416);
 	#endif
+	tflite::DEVICE_TYPE device_type;
+	#ifndef ODROID
+		device_type = tflite::DEVICE_TYPE::XAVIER;
+	#endif
+	#ifdef ODROID
+		device_type = tflite::DEVICE_TYPE::ODROID:
+	#endif
 
   double response_time = 0;
   struct timespec begin, end;
@@ -383,6 +391,7 @@ int main(int argc, char* argv[])
 	// Inittialize runtime
 	tflite::TfLiteRuntime runtime(RUNTIME_SOCK, SCHEDULER_SOCK,
 																	 first_model, second_model, input_type);
+  runtime.SetDeviceType(device_type);
 	if(runtime.GetRuntimeState() != tflite::RuntimeState::INVOKE_){
 		std::cout << "Runtime intialization failed" << "\n";
 		runtime.ShutdownScheduler();
@@ -401,7 +410,7 @@ int main(int argc, char* argv[])
 	std::cout << "Loop start" << "\n";
 	
   while(n < OUT_SEQ){
-    std::cout << "[LiteRuntime] invoke : " << n << "\n";
+    // std::cout << "[LiteRuntime] invoke : " << n << "\n";
     runtime.CopyInputToInterpreter(first_model, input_imagenet[n % 2], 
 			input_imagenet[n % 2]);
     
@@ -413,12 +422,13 @@ int main(int argc, char* argv[])
     }
 		
     clock_gettime(CLOCK_MONOTONIC, &end);
-    if(n > 0){ // drop first invoke's data.
+    if(n >= 0){ // drop first invoke's data.
       double temp_time = (end.tv_sec - begin.tv_sec) + ((end.tv_nsec - begin.tv_nsec) / 1000000000.0);
-			printf("n %d latency %.6f \n", n, temp_time);
+			// printf("n %d latency %.6f \n", n, temp_time);
       response_time += temp_time;
     }
     n++;
+		// std::cout << "\n";
 		// output = runtime.GetFloatOutputInVector();
 		// uintoutput = runtime.GetUintOutputInVector();
 		// PrintRawOutputMinMax(output);
