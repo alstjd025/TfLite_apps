@@ -8,7 +8,7 @@
 #define mnist 
 #define imagenet
 // #define lanenet
-// #define ODROID
+// #define ODROID_
 
 using namespace cv;
 using namespace std;
@@ -392,8 +392,7 @@ int main(int argc, char* argv[])
 	std::cout << "Initialize runtime" << "\n";
 	// Inittialize runtime
 	tflite::TfLiteRuntime runtime(RUNTIME_SOCK, SCHEDULER_SOCK,
-																	 first_model, second_model, input_type, latency_predictor);
-  runtime.SetDeviceType(device_type);
+												first_model, second_model, input_type, device_type, latency_predictor);
 	if(runtime.GetRuntimeState() != tflite::RuntimeState::INVOKE_){
 		std::cout << "Runtime intialization failed" << "\n";
 		runtime.ShutdownScheduler();
