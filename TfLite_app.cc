@@ -8,18 +8,18 @@
 #define mnist 
 #define imagenet
 // #define lanenet
-// #define ODROID_
+// #define ODROID
 
 using namespace cv;
 using namespace std;
 
-#ifndef ODROID_
+#ifndef ODROID
 	#define RUNTIME_SOCK "/home/nvidia/TfLite_apps/sock/runtime_1"
 	#define SCHEDULER_SOCK "/home/nvidia/TfLite_apps/sock/scheduler"
 	#define ROOT_DIR "/home/nvidia/TfLite_apps/image"
 #endif
 
-#ifdef ODROID_
+#ifdef ODROID
 	#define RUNTIME_SOCK "/home/odroid/TfLite_apps/sock/runtime_1"
 	#define SCHEDULER_SOCK "/home/odroid/TfLite_apps/sock/scheduler"
 	#define ROOT_DIR "/home/odroid/TfLite_apps/image"
@@ -315,7 +315,6 @@ int main(int argc, char* argv[])
 	const char* second_model;
 	std::string input_type_str, sequence_name, log_path;
 	bool bUseTwoModel = false;
-	bool latency_predictor = false;
 	if (argc == 2) {
 		std::cout << "Got One Model \n";
 		first_model = argv[1];
@@ -333,7 +332,6 @@ int main(int argc, char* argv[])
 		input_type_str = argv[3];
 		sequence_name = argv[4];
 		log_path = argv[5];
-		latency_predictor = std::stoi(argv[6]);
 	}
 	else{
 			fprintf(stderr, "<tflite model> <tflite model> <input_type> <sequence_name> <log_path>\n");
@@ -358,7 +356,7 @@ int main(int argc, char* argv[])
 	
 
 	#ifdef imagenet
-		#ifndef ODROID_
+		#ifndef ODROID
 	read_image_opencv("/home/nvidia/TfLite_apps/images/imagenet/banana.jpg", input_imagenet, input_type);
 	read_image_opencv("/home/nvidia/TfLite_apps/images/imagenet/orange.jpg", input_imagenet, input_type);
 	// read_image_opencv("/home/nvidia/TfLite_apps/images/coco/keyboard.jpg", input_imagenet, input_type);
@@ -366,7 +364,7 @@ int main(int argc, char* argv[])
 	// read_image_opencv_quant("/home/nvidia/TfLite_apps/images/coco/banana_0.jpg", input_iamgenet_quant, input_type);
 	// read_image_opencv_quant("/home/nvidia/TfLite_apps/images/coco/orange.jpg", input_iamgenet_quant, input_type);
 		#endif
-		#ifdef ODROID_
+		#ifdef ODROID
 		read_image_opencv("/home/odroid/TfLite_apps/images/coco/orange.jpg", input_imagenet, input_type);
 		read_image_opencv("/home/odroid/TfLite_apps/images/coco/banana_0.jpg", input_imagenet, input_type);
 		#endif
@@ -379,11 +377,11 @@ int main(int argc, char* argv[])
 	read_image_opencv_quant("road_2.jpg", input_iamgenet_quant, tflite::INPUT_TYPE::IMAGENET416);
 	#endif
 	tflite::DEVICE_TYPE device_type;
-	#ifndef ODROID_
+	#ifndef ODROID
 		device_type = tflite::DEVICE_TYPE::XAVIER;
 	#endif
-	#ifdef ODROID_
-		device_type = tflite::DEVICE_TYPE::ODROID;
+	#ifdef ODROID
+		device_type = tflite::DEVICE_TYPE::ODROID:
 	#endif
 
   double response_time = 0;
@@ -392,7 +390,8 @@ int main(int argc, char* argv[])
 	std::cout << "Initialize runtime" << "\n";
 	// Inittialize runtime
 	tflite::TfLiteRuntime runtime(RUNTIME_SOCK, SCHEDULER_SOCK,
-												first_model, second_model, input_type, device_type, latency_predictor);
+																	 first_model, second_model, input_type);
+  runtime.SetDeviceType(device_type);
 	if(runtime.GetRuntimeState() != tflite::RuntimeState::INVOKE_){
 		std::cout << "Runtime intialization failed" << "\n";
 		runtime.ShutdownScheduler();
@@ -425,7 +424,7 @@ int main(int argc, char* argv[])
     clock_gettime(CLOCK_MONOTONIC, &end);
     if(n >= 0){ // drop first invoke's data.
       double temp_time = (end.tv_sec - begin.tv_sec) + ((end.tv_nsec - begin.tv_nsec) / 1000000000.0);
-			printf("n %d latency %.6f \n", n, temp_time);
+			// printf("n %d latency %.6f \n", n, temp_time);
       response_time += temp_time;
     }
     n++;
