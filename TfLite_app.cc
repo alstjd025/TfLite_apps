@@ -304,7 +304,9 @@ tflite::INPUT_TYPE GetInputTypeFromString(string input_type){
     return tflite::INPUT_TYPE::COCO416;
   }else if(strcmp(input_type.c_str(), "MNIST") == 0){
     return tflite::INPUT_TYPE::MNIST;
-  }else{
+	}else if(strcmp(input_type.c_str(), "LANENET144800") == 0){
+		return tflite::INPUT_TYPE::LANENET144800;
+	}else{
     return tflite::INPUT_TYPE::USER;
   }
 }
@@ -426,7 +428,7 @@ int main(int argc, char* argv[])
     clock_gettime(CLOCK_MONOTONIC, &end);
     if(n >= 0){ // drop first invoke's data.
       double temp_time = (end.tv_sec - begin.tv_sec) + ((end.tv_nsec - begin.tv_nsec) / 1000000000.0);
-			// printf("n %d latency %.6f \n", n, temp_time);
+			printf("n %d latency %.6f \n", n, temp_time);
       response_time += temp_time;
     }
     n++;
