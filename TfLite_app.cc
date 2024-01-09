@@ -5,7 +5,7 @@
 #include "tensorflow/lite/lite_runtime.h"
 #include "tensorflow/lite/util.h"
 
-#define OUT_SEQ 100
+#define OUT_SEQ 1
 #define mnist
 #define imagenet
 // #define lanenet
@@ -83,7 +83,6 @@ void read_Mnist_Label(string filename, vector<unsigned char>& arr) {
       unsigned char temp = 0;
       file.read((char*)&temp, sizeof(temp));
       if (i > 7) {
-        cout << (int)temp << " ";
         arr.push_back((unsigned char)temp);
       }
     }
@@ -118,7 +117,7 @@ void read_image_opencv(string filename, vector<cv::Mat>& input,
       cv::resize(cvimg, cvimg_, cv::Size(416, 416));  // resize
       break;
     case tflite::INPUT_TYPE::LANENET144800:
-      cv::resize(cvimg, cvimg_, cv::Size(288, 800));  // resize
+      cv::resize(cvimg, cvimg_, cv::Size(256, 512));  // resize
       break;
     default:
       break;
@@ -145,7 +144,6 @@ void read_image_opencv_quant(string filename, vector<cv::Mat>& input,
     case tflite::INPUT_TYPE::IMAGENET224:
       cv::resize(cvimg, cvimg_, cv::Size(224, 224));  // resize
       break;
-
     case tflite::INPUT_TYPE::IMAGENET300:
       cv::resize(cvimg, cvimg_, cv::Size(300, 300));  // resize
       break;
@@ -157,7 +155,7 @@ void read_image_opencv_quant(string filename, vector<cv::Mat>& input,
       cv::resize(cvimg, cvimg_, cv::Size(416, 416));  // resize
       break;
     case tflite::INPUT_TYPE::LANENET144800:
-      cv::resize(cvimg, cvimg_, cv::Size(288, 800));  // resize
+      cv::resize(cvimg, cvimg_, cv::Size(256, 512));  // resize
       break;
     default:
       break;
@@ -435,14 +433,19 @@ int main(int argc, char* argv[]) {
   std::vector<std::vector<float>*>* output;
   std::vector<std::vector<uint8_t>*>* uintoutput;
   ParseLabels();
-  std::cout << "Loop start"
+  std::cout << "Inference start"
             << "\n";
 
   while (n < OUT_SEQ) {
-    // std::cout << "[LiteRuntime] invoke : " << n << "\n";
+// std::cout << "[LiteRuntime] invoke : " << n << "\n";
+#ifdef mnist
+    runtime.CopyInputToInterpreter(first_model, input_mnist[n % 2],
+                                   input_mnist[n % 2]);
+#endif
+#ifndef mnist
     runtime.CopyInputToInterpreter(first_model, input_imagenet[n % 2],
                                    input_imagenet[n % 2]);
-
+#endif
     clock_gettime(CLOCK_MONOTONIC, &begin);
     if (runtime.Invoke() != kTfLiteOk) {
       std::cout << "Invoke ERROR"
