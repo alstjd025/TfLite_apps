@@ -8,7 +8,6 @@
 #define OUT_SEQ 1
 #define mnist
 #define imagenet
-// #define lanenet
 // #define ODROID_XU4
 
 using namespace cv;
@@ -368,10 +367,12 @@ int main(int argc, char* argv[]) {
 
 #ifdef imagenet
 #ifndef ODROID_XU4
-  read_image_opencv("/home/nvidia/TfLite_apps/images/imagenet/banana.jpg",
+  read_image_opencv("/home/nvidia/TfLite_apps/images/lane/lane.jpg",
                     input_imagenet, input_type);
-  read_image_opencv("/home/nvidia/TfLite_apps/images/imagenet/orange.jpg",
-                    input_imagenet, input_type);
+  // read_image_opencv("/home/nvidia/TfLite_apps/images/imagenet/banana.jpg",
+  //                   input_imagenet, input_type);
+  // read_image_opencv("/home/nvidia/TfLite_apps/images/imagenet/orange.jpg",
+  //                   input_imagenet, input_type);
   // read_image_opencv("/home/nvidia/TfLite_apps/images/coco/keyboard.jpg",
   // input_imagenet, input_type);
   // read_image_opencv("/home/nvidia/TfLite_apps/images/coco/desk.jpg",
@@ -389,16 +390,6 @@ int main(int argc, char* argv[]) {
 #endif
 #endif
 
-#ifdef lanenet
-  read_image_opencv("road.jpg", input_imagenet,
-                    tflite::INPUT_TYPE::IMAGENET416);
-  read_image_opencv("road_2.jpg", input_imagenet,
-                    tflite::INPUT_TYPE::IMAGENET416);
-  read_image_opencv_quant("road.jpg", input_iamgenet_quant,
-                          tflite::INPUT_TYPE::IMAGENET416);
-  read_image_opencv_quant("road_2.jpg", input_iamgenet_quant,
-                          tflite::INPUT_TYPE::IMAGENET416);
-#endif
   tflite::DEVICE_TYPE device_type;
 #ifndef ODROID_XU4
   device_type = tflite::DEVICE_TYPE::XAVIER;
