@@ -5,7 +5,7 @@
 #include "tensorflow/lite/lite_runtime.h"
 #include "tensorflow/lite/util.h"
 
-#define OUT_SEQ 1
+#define OUT_SEQ 100
 #define mnist
 #define imagenet
 // #define ODROID_XU4
@@ -115,7 +115,7 @@ void read_image_opencv(string filename, vector<cv::Mat>& input,
     case tflite::INPUT_TYPE::COCO416:
       cv::resize(cvimg, cvimg_, cv::Size(416, 416));  // resize
       break;
-    case tflite::INPUT_TYPE::LANENET144800:
+    case tflite::INPUT_TYPE::LANENET_FRAME:
       cv::resize(cvimg, cvimg_, cv::Size(256, 512));  // resize
       break;
     default:
@@ -153,7 +153,7 @@ void read_image_opencv_quant(string filename, vector<cv::Mat>& input,
     case tflite::INPUT_TYPE::COCO416:
       cv::resize(cvimg, cvimg_, cv::Size(416, 416));  // resize
       break;
-    case tflite::INPUT_TYPE::LANENET144800:
+    case tflite::INPUT_TYPE::LANENET_FRAME:
       cv::resize(cvimg, cvimg_, cv::Size(256, 512));  // resize
       break;
     default:
@@ -312,8 +312,8 @@ tflite::INPUT_TYPE GetInputTypeFromString(string input_type) {
     return tflite::INPUT_TYPE::COCO416;
   } else if (strcmp(input_type.c_str(), "MNIST") == 0) {
     return tflite::INPUT_TYPE::MNIST;
-  } else if (strcmp(input_type.c_str(), "LANENET144800") == 0) {
-    return tflite::INPUT_TYPE::LANENET144800;
+  } else if (strcmp(input_type.c_str(), "LANENET") == 0) {
+    return tflite::INPUT_TYPE::LANENET_FRAME;
   } else {
     return tflite::INPUT_TYPE::USER;
   }
