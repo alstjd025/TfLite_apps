@@ -5,7 +5,7 @@
 #include "tensorflow/lite/lite_runtime.h"
 #include "tensorflow/lite/util.h"
 
-#define OUT_SEQ 100
+#define OUT_SEQ 1
 #define mnist
 #define imagenet
 // #define ODROID_XU4
@@ -383,6 +383,8 @@ int main(int argc, char* argv[]) {
   // input_iamgenet_quant, input_type);
 #endif
 #ifdef ODROID_XU4
+  read_image_opencv("/home/odroid/TfLite_apps/images/lane/lane.jpg",
+                    input_imagenet, input_type);
   read_image_opencv("/home/odroid/TfLite_apps/images/coco/orange.jpg",
                     input_imagenet, input_type);
   read_image_opencv("/home/odroid/TfLite_apps/images/coco/banana_0.jpg",

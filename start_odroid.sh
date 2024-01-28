@@ -7,8 +7,9 @@ Tensorflowpath="home/odroid/FBF-TF"
 
 echo "TfLite Unit_simple Test"
 
-cd ${AppPath}
 . ${TflitePath}/build_bbb_lib.sh
+
+cd ${AppPath}
 touch TfLite_app.cc
 make TfLite_app_odroid
 
