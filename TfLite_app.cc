@@ -5,9 +5,7 @@
 #include "tensorflow/lite/lite_runtime.h"
 #include "tensorflow/lite/util.h"
 
-#define OUT_SEQ 1
-#define mnist
-#define imagenet
+#define OUT_SEQ 100
 // #define ODROID_XU4
 
 using namespace cv;
@@ -29,7 +27,6 @@ using namespace std;
 std::vector<std::string> coco_label;
 std::vector<std::string> imagenet_label;
 
-#ifdef mnist
 int ReverseInt(int i) {
   unsigned char ch1, ch2, ch3, ch4;
   ch1 = i & 255;
@@ -89,7 +86,6 @@ void read_Mnist_Label(string filename, vector<unsigned char>& arr) {
     cout << "file open failed" << endl;
   }
 }
-#endif  // define Mnist
 
 void read_image_opencv(string filename, vector<cv::Mat>& input,
                        tflite::INPUT_TYPE type) {
@@ -357,15 +353,13 @@ int main(int argc, char* argv[]) {
   tflite::INPUT_TYPE input_type;
   input_type = GetInputTypeFromString(input_type_str);
 
-#ifdef mnist
-  std::cout << "Loading images \n";
-  read_Mnist("images/mnist/train-images-idx3-ubyte", input_mnist);
+// FOR MNIST TEST INPUT
+// std::cout << "Loading images \n";
+// read_Mnist("images/mnist/train-images-idx3-ubyte", input_mnist);
 // std::cout << "Loading Labels \n";
 // read_Mnist_Label("labels/mnist/train-labels-idx1-ubyte", arr);
 // std::cout << "Loading Mnist Image, Label Complete \n";
-#endif
 
-#ifdef imagenet
 #ifndef ODROID_XU4
   read_image_opencv("/home/nvidia/TfLite_apps/images/lane/lane.jpg",
                     input_imagenet, input_type);
@@ -383,14 +377,14 @@ int main(int argc, char* argv[]) {
   // input_iamgenet_quant, input_type);
 #endif
 #ifdef ODROID_XU4
-  read_image_opencv("/home/odroid/TfLite_apps/images/lane/lane.jpg",
-                    input_imagenet, input_type);
+  // read_image_opencv("/home/odroid/TfLite_apps/images/lane/lane.jpg",
+  //                   input_imagenet, input_type);
   read_image_opencv("/home/odroid/TfLite_apps/images/coco/orange.jpg",
                     input_imagenet, input_type);
   read_image_opencv("/home/odroid/TfLite_apps/images/coco/banana_0.jpg",
                     input_imagenet, input_type);
 #endif
-#endif
+
 
   tflite::DEVICE_TYPE device_type;
 #ifndef ODROID_XU4
@@ -400,7 +394,7 @@ int main(int argc, char* argv[]) {
   device_type = tflite::DEVICE_TYPE::ODROID;
 #endif
 
-  double response_time = 0;
+  std::vector<double> response_time;
   struct timespec begin, end;
   int n = 0;
   std::cout << "Initialize runtime"
@@ -431,14 +425,11 @@ int main(int argc, char* argv[]) {
 
   while (n < OUT_SEQ) {
 // std::cout << "[LiteRuntime] invoke : " << n << "\n";
-#ifdef mnist
-    runtime.CopyInputToInterpreter(first_model, input_mnist[n % 2],
-                                   input_mnist[n % 2]);
-#endif
-#ifndef mnist
+// runtime.CopyInputToInterpreter(first_model, input_mnist[n % 2],
+//                                input_mnist[n % 2]);
     runtime.CopyInputToInterpreter(first_model, input_imagenet[n % 2],
                                    input_imagenet[n % 2]);
-#endif
+
     clock_gettime(CLOCK_MONOTONIC, &begin);
     if (runtime.Invoke() != kTfLiteOk) {
       std::cout << "Invoke ERROR"
@@ -452,7 +443,7 @@ int main(int argc, char* argv[]) {
       double temp_time = (end.tv_sec - begin.tv_sec) +
                          ((end.tv_nsec - begin.tv_nsec) / 1000000000.0);
       printf("n %d latency %.6f \n", n, temp_time);
-      response_time += temp_time;
+      response_time.push_back(temp_time);
     }
     n++;
     // std::cout << "\n";
@@ -465,7 +456,10 @@ int main(int argc, char* argv[]) {
     // ParseOutput(output);
   }
   runtime.ShutdownScheduler();
-  response_time = response_time / OUT_SEQ;
-  printf("Average response time for %d invokes : %.6fs \n", OUT_SEQ,
-         response_time);
+  double average_latency = 0;
+  for(auto t : response_time){
+    average_latency += t;
+  }
+  average_latency = average_latency / response_time.size();
+  printf("Average response time for %d invokes : %.6fs \n", OUT_SEQ, average_latency);
 }
