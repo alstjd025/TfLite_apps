@@ -5,7 +5,7 @@
 #include "tensorflow/lite/lite_runtime.h"
 #include "tensorflow/lite/util.h"
 
-#define OUT_SEQ 100
+#define OUT_SEQ 1
 // #define ODROID_XU4
 
 using namespace cv;
@@ -100,11 +100,12 @@ void read_image_opencv(string filename, vector<cv::Mat>& input,
     case tflite::INPUT_TYPE::IMAGENET224:
       cv::resize(cvimg, cvimg_, cv::Size(224, 224));  // resize
       break;
-
+    case tflite::INPUT_TYPE::IMAGENET256:
+      cv::resize(cvimg, cvimg_, cv::Size(256, 256));  // resize
+      break;
     case tflite::INPUT_TYPE::IMAGENET300:
       cv::resize(cvimg, cvimg_, cv::Size(300, 300));  // resize
       break;
-
     case tflite::INPUT_TYPE::IMAGENET416:
       cv::resize(cvimg, cvimg_, cv::Size(416, 416));  // resize
       break;
@@ -112,7 +113,7 @@ void read_image_opencv(string filename, vector<cv::Mat>& input,
       cv::resize(cvimg, cvimg_, cv::Size(416, 416));  // resize
       break;
     case tflite::INPUT_TYPE::LANENET_FRAME:
-      cv::resize(cvimg, cvimg_, cv::Size(256, 512));  // resize
+      cv::resize(cvimg, cvimg_, cv::Size(512, 256));  // resize
       break;
     default:
       break;
@@ -139,6 +140,9 @@ void read_image_opencv_quant(string filename, vector<cv::Mat>& input,
     case tflite::INPUT_TYPE::IMAGENET224:
       cv::resize(cvimg, cvimg_, cv::Size(224, 224));  // resize
       break;
+    case tflite::INPUT_TYPE::IMAGENET256:
+      cv::resize(cvimg, cvimg_, cv::Size(256, 256));  // resize
+      break;
     case tflite::INPUT_TYPE::IMAGENET300:
       cv::resize(cvimg, cvimg_, cv::Size(300, 300));  // resize
       break;
@@ -150,7 +154,7 @@ void read_image_opencv_quant(string filename, vector<cv::Mat>& input,
       cv::resize(cvimg, cvimg_, cv::Size(416, 416));  // resize
       break;
     case tflite::INPUT_TYPE::LANENET_FRAME:
-      cv::resize(cvimg, cvimg_, cv::Size(256, 512));  // resize
+      cv::resize(cvimg, cvimg_, cv::Size(512, 256));  // resize
       break;
     default:
       break;
@@ -302,6 +306,8 @@ void ParseLabels() {
 tflite::INPUT_TYPE GetInputTypeFromString(string input_type) {
   if (strcmp(input_type.c_str(), "IMAGENET224") == 0) {
     return tflite::INPUT_TYPE::IMAGENET224;
+  } else if (strcmp(input_type.c_str(), "IMAGENET256") == 0) {
+    return tflite::INPUT_TYPE::IMAGENET256;
   } else if (strcmp(input_type.c_str(), "IMAGENET300") == 0) {
     return tflite::INPUT_TYPE::IMAGENET300;
   } else if (strcmp(input_type.c_str(), "COCO416") == 0) {
@@ -342,7 +348,7 @@ int main(int argc, char* argv[]) {
     fprintf(stderr,
             "<tflite model> <tflite model> <input_type> <sequence_name> "
             "<log_path>\n");
-    fprintf(stderr, "input_type : IMAGENET224, IMAGENET300, COCO416\n");
+    fprintf(stderr, "input_type : IMAGENET224, IMAGENET256, IMAGENET300, COCO416, LANENET\n");
     return 1;
   }
 
@@ -361,12 +367,12 @@ int main(int argc, char* argv[]) {
 // std::cout << "Loading Mnist Image, Label Complete \n";
 
 #ifndef ODROID_XU4
-  read_image_opencv("/home/nvidia/TfLite_apps/images/lane/lane.jpg",
+  // read_image_opencv("/home/nvidia/TfLite_apps/images/lane/lane.jpg",
+  //                   input_imagenet, input_type);
+  read_image_opencv("/home/nvidia/TfLite_apps/images/imagenet/banana.jpg",
                     input_imagenet, input_type);
-  // read_image_opencv("/home/nvidia/TfLite_apps/images/imagenet/banana.jpg",
-  //                   input_imagenet, input_type);
-  // read_image_opencv("/home/nvidia/TfLite_apps/images/imagenet/orange.jpg",
-  //                   input_imagenet, input_type);
+  read_image_opencv("/home/nvidia/TfLite_apps/images/imagenet/orange.jpg",
+                    input_imagenet, input_type);
   // read_image_opencv("/home/nvidia/TfLite_apps/images/coco/keyboard.jpg",
   // input_imagenet, input_type);
   // read_image_opencv("/home/nvidia/TfLite_apps/images/coco/desk.jpg",
