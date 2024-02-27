@@ -1,5 +1,5 @@
 #include "tensorflow/lite/tf_scheduler.h"
-// #define ODROID
+#define ODROID
 
 #ifndef ODROID
 #define SCHEDULER_SOCK "/home/nvidia/TfLite_apps/sock/scheduler"

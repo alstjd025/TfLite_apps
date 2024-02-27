@@ -5,8 +5,8 @@
 #include "tensorflow/lite/lite_runtime.h"
 #include "tensorflow/lite/util.h"
 
-#define OUT_SEQ 1
-// #define ODROID_XU4
+#define OUT_SEQ 100
+//#define ODROID_XU4
 
 using namespace cv;
 using namespace std;
@@ -113,7 +113,7 @@ void read_image_opencv(string filename, vector<cv::Mat>& input,
       cv::resize(cvimg, cvimg_, cv::Size(416, 416));  // resize
       break;
     case tflite::INPUT_TYPE::LANENET_FRAME:
-      cv::resize(cvimg, cvimg_, cv::Size(512, 256));  // resize
+      cv::resize(cvimg, cvimg_, cv::Size(256, 512));  // resize
       break;
     default:
       break;
@@ -154,7 +154,7 @@ void read_image_opencv_quant(string filename, vector<cv::Mat>& input,
       cv::resize(cvimg, cvimg_, cv::Size(416, 416));  // resize
       break;
     case tflite::INPUT_TYPE::LANENET_FRAME:
-      cv::resize(cvimg, cvimg_, cv::Size(512, 256));  // resize
+      cv::resize(cvimg, cvimg_, cv::Size(256, 512));  // resize
       break;
     default:
       break;
@@ -383,12 +383,12 @@ int main(int argc, char* argv[]) {
   // input_iamgenet_quant, input_type);
 #endif
 #ifdef ODROID_XU4
-  // read_image_opencv("/home/odroid/TfLite_apps/images/lane/lane.jpg",
-  //                   input_imagenet, input_type);
+  read_image_opencv("/home/odroid/TfLite_apps/images/lane/lane.jpg",
+                     input_imagenet, input_type);
   read_image_opencv("/home/odroid/TfLite_apps/images/coco/orange.jpg",
                     input_imagenet, input_type);
-  read_image_opencv("/home/odroid/TfLite_apps/images/coco/banana_0.jpg",
-                    input_imagenet, input_type);
+  //read_image_opencv("/home/odroid/TfLite_apps/images/coco/banana_0.jpg",
+  //                  input_imagenet, input_type);
 #endif
 
 
@@ -431,11 +431,10 @@ int main(int argc, char* argv[]) {
 
   while (n < OUT_SEQ) {
 // std::cout << "[LiteRuntime] invoke : " << n << "\n";
-// runtime.CopyInputToInterpreter(first_model, input_mnist[n % 2],
-//                                input_mnist[n % 2]);
-    runtime.CopyInputToInterpreter(first_model, input_imagenet[n % 2],
+   //runtime.CopyInputToInterpreter(first_model, input_mnist[n % 2],
+   //                             input_mnist[n % 2]);
+				runtime.CopyInputToInterpreter(first_model, input_imagenet[n % 2],
                                    input_imagenet[n % 2]);
-
     clock_gettime(CLOCK_MONOTONIC, &begin);
     if (runtime.Invoke() != kTfLiteOk) {
       std::cout << "Invoke ERROR"
