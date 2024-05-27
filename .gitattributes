@@ -28,3 +28,4 @@ models/inception_v2_lite_model.tflite filter=lfs diff=lfs merge=lfs -text
 models/posenet_mobilenet.tflite filter=lfs diff=lfs merge=lfs -text
 models/movenet_singlepose_thunder.tflite filter=lfs diff=lfs merge=lfs -text
 models/centernet_mobilenetv2_fpn_kpts_480x640.tflite filter=lfs diff=lfs merge=lfs -text
+./models/ filter=lfs diff=lfs merge=lfs -text

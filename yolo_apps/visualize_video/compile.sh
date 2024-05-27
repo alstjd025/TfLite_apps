@@ -1,7 +1,7 @@
 #!/bin/bash
 
 AppPath="/home/nvidia/TfLite_apps"
-TflitePath="../../FBF-TF/tensorflow/lite/tools/make"
+TflitePath="../../../FBF-TF/tensorflow/lite/tools/make"
 Tensorflowpath="home/nvidia/FBF-TF"
 
 cd ../../../FBF-TF 

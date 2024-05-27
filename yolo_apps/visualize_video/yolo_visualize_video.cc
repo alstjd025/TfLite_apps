@@ -5,7 +5,7 @@
 #include <ostream>
 
 #define OUT_SEQ 100
-#define lanenet
+// #define lanenet
 #define twomodel
 
 using namespace cv;
@@ -50,7 +50,7 @@ void YOLO_parsing(std::vector<tflite::YOLO_Parser::BoundingBox>& result_boxes, i
 	outFile.close();
   }
 
-void visualize_with_labels(cv::Mat& image, const std::vector<tflite::YOLO_Parser::BoundingBox>& bboxes, std::map<int, std::string>& labelDict) {
+void visualize_with_labels(cv::Mat& image, const std::vector<tflite::YOLO_Parser::BoundingBox>& bboxes, std::map<int, std::string>& labelDict, float fps) {
     for (const tflite::YOLO_Parser::BoundingBox& bbox : bboxes) {
         int x1 = bbox.left;
         int y1 = bbox.top;
@@ -68,7 +68,10 @@ void visualize_with_labels(cv::Mat& image, const std::vector<tflite::YOLO_Parser
         cv::Size text_size = cv::getTextSize(label, cv::FONT_HERSHEY_SIMPLEX, 0.6, 2, nullptr);
         cv::rectangle(image, cv::Point(x1, label_y - text_size.height), cv::Point(x1 + text_size.width, label_y + 5), color, -1);
         cv::putText(image, label, cv::Point(x1, label_y), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(255, 255, 255), 2);
-    }
+    
+		std::string fps_label = "FPS: " + std::to_string(fps);
+    	cv::putText(image, fps_label, cv::Point(10, 30), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(255, 255, 255), 2);
+	}
 }
 
 tflite::INPUT_TYPE GetInputTypeFromString(string input_type){
@@ -152,6 +155,7 @@ int main(int argc, char* argv[]) {
 	input_type = GetInputTypeFromString(input_type_);
     tflite::TfLiteRuntime runtime(RUNTIME_SOCK, SCHEDULER_SOCK,
     							first_model, second_model, input_type, device_type, latency_predictor);
+	runtime.SetDeviceType(device_type);
 	if(runtime.GetRuntimeState() != tflite::RuntimeState::INVOKE_){
 		std::cout << "Runtime intialization failed" << "\n";
 		runtime.ShutdownScheduler();
@@ -164,15 +168,19 @@ int main(int argc, char* argv[]) {
 
 	// For video capture
 	///////////////////////////////
-	std::string video_filename = "test.webm";
+	std::string video_filename = "traffic.webm";
 	cv::VideoCapture video_capture(video_filename);
     if (!video_capture.isOpened()) {
         std::cerr << "Error: Could not open video file: " << video_filename << std::endl;
         return -1;
     }
+	int frame_count=0;
+	float fps = 0.0;
 	///////////////////////////////
 	cv::Mat video_frame;
+	struct timespec begin, end;
 	while (video_capture.read(video_frame)) {
+		clock_gettime(CLOCK_MONOTONIC, &begin);
         input.clear();
 		cv::cvtColor(video_frame, video_frame, COLOR_BGR2RGB); 
 		cv::Mat video_frame_;
@@ -191,8 +199,12 @@ int main(int argc, char* argv[]) {
 		// visualize
 		std::string window_name = "parsed image";
 		cv::namedWindow(window_name, cv::WINDOW_NORMAL);
+		clock_gettime(CLOCK_MONOTONIC, &end);
+		double temp_time = (end.tv_sec - begin.tv_sec) +
+                         ((end.tv_nsec - begin.tv_nsec) / 1000000000.0);
+		fps = 1/temp_time;
     	if (!video_frame_.empty()) {
-    	    visualize_with_labels(video_frame_, bboxes, labelDict);
+    	    visualize_with_labels(video_frame_, bboxes, labelDict, fps);
         	cv::imshow(window_name, video_frame_);
 		    cv::waitKey(1);
 		}
