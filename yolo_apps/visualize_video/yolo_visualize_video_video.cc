@@ -61,6 +61,11 @@ bool STOP_SIGNAL(cv::Mat& image,std::vector<tflite::YOLO_Parser::BoundingBox>& r
 	bool SIGNAL = false;
 	for (int i=0; i <result_boxes.size(); i++) { 
 		auto object_name = labelDict[result_boxes[i].class_id];
+		// auto left = result_boxes[i].left;
+		// auto top = result_boxes[i].top;
+		// auto right = result_boxes[i].right;
+		// auto bottom = result_boxes[i].bottom;
+		// auto cls_data = result_boxes[i].score;
 		if(object_name == "person") SIGNAL = true;
 	}
 	if(SIGNAL) {
@@ -152,19 +157,11 @@ int main(int argc, char* argv[]) {
 	runtime.WriteInitStateLog();
 
 	// For video capture
-	//std::string video_filename = "40.mp4";
+	std::string video_filename = "40.mp4";
 	//std::string video_filename = "25.mp4";
-	//cv::VideoCapture video_capture(video_filename); 
-	
-	// For streaming camera frame
-	//cv::VideoCapture video_capture("udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, payload=(int)96 ! rtph264depay ! h264parse ! queue ! omxh264dec ! queue! videorate ! video/x-raw,framerate=15/1 ! videoconvert ! appsink", CAP_GSTREAMER);
-	//cv::VideoCapture video_capture("udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, payload=(int)96 ! rtph264depay ! h264parse ! queue ! decodebin ! queue! videorate ! video/x-raw,framerate=15/1 ! nvvideoconvert ! videoconvert ! appsink", CAP_GSTREAMER);
-	// cv::VideoCapture video_capture("udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, payload=(int)96 ! rtph264depay ! h264parse ! queue ! avdec_h264 ! queue! videorate ! video/x-raw,framerate=10/1 ! videoconvert ! appsink", CAP_GSTREAMER);
-	// cv::VideoCapture video_capture("udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, payload=(int)96 ! rtph264depay ! h264parse ! queue ! avdec_h264 ! queue! videorate ! video/x-raw,framerate=15/1 ! videoconvert ! appsink", CAP_GSTREAMER);
-	//cv::VideoCapture video_capture("udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, payload=(int)96 ! rtph264depay ! h264parse ! queue ! avdec_h264 ! queue! videorate ! video/x-raw! videoconvert ! appsink", CAP_GSTREAMER);
-	cv::VideoCapture video_capture("udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, payload=(int)96 ! rtph264depay ! h264parse ! queue ! avdec_h264 ! queue! videorate ! video/x-raw,framerate=20/1 ! videoconvert ! appsink", CAP_GSTREAMER);
-
-	if (!video_capture.isOpened()) {
+	cv::VideoCapture video_capture(video_filename);
+    if (!video_capture.isOpened()) {
+        std::cerr << "Error: Could not open video file: " << video_filename << std::endl;
         return -1;
     }
 	int frame_count=0;
@@ -173,25 +170,22 @@ int main(int argc, char* argv[]) {
 	cv::Mat video_frame;
 	struct timespec begin, end;
 	struct timespec Begin, End;
+	////////////////////////////////////////////////////////////
+	// TODO point
+	// Make demo app synchronous with real-time stamp (30 fps) (0.033s)
+	////////////////////////////////////////////////////////////
 	int frame_index =0;
 	int next_frame=0;
+	// <Real World time stamp>  -----> <Ours time stamp>
+	// <Real World time stamp>  <--REAL_FPS--- <Ours time stamp>
 	// choosen video capture index should be [Ours time stamp / Real World time stamp]
 	////////////////////////////////////////////////////////////
 	double total_time = 0;
 	int detected_frame = 0;
 	double fps_sum=0;
-	// cv::Mat video_frame_copy;
 	clock_gettime(CLOCK_MONOTONIC, &Begin);
-	// std::string window_name_o = "original image";
-	std::string window_name = "parsed image";
-	// cv::namedWindow(window_name_o, cv::WINDOW_NORMAL);
-	cv::namedWindow(window_name, cv::WINDOW_NORMAL);
-	double temp_time=0;
-	double sync_param=0;
-	bool signal = false;
 	while (video_capture.read(video_frame)) {
-		// video_frame_copy = video_frame;
-		// cv::imshow(window_name_o, video_frame_copy);
+		////////////////////////////////////////////
 		if(frame_index != next_frame) {
 			frame_index+=1;
 			std::cout << "JUMP FRAME\n";
@@ -199,8 +193,11 @@ int main(int argc, char* argv[]) {
 		}
 		frame_index = 0;
 		frame_num+=next_frame;
+		////////////////////////////////////////////
 		clock_gettime(CLOCK_MONOTONIC, &begin);
         input.clear();
+		cv::cvtColor(video_frame, video_frame, COLOR_BGR2RGB); 
+		cv::resize(video_frame, video_frame, cv::Size(416,416));
 		input.push_back(video_frame);
 		runtime.CopyInputToInterpreter(first_model, input[0], input[0]);
         if(runtime.Invoke() != kTfLiteOk){
@@ -210,7 +207,14 @@ int main(int argc, char* argv[]) {
     	}
 		clock_gettime(CLOCK_MONOTONIC, &end);
 		std::vector<tflite::YOLO_Parser::BoundingBox> bboxes = tflite::YOLO_Parser::result_boxes;
-		temp_time = (end.tv_sec - begin.tv_sec) +
+		
+		// for mAP
+		// SaveData4mAP(bboxes, fnum, labelDict);
+		
+		// visualize
+		std::string window_name = "parsed image";
+		cv::namedWindow(window_name, cv::WINDOW_NORMAL);
+		double temp_time = (end.tv_sec - begin.tv_sec) +
                          ((end.tv_nsec - begin.tv_nsec) / 1000000000.0);
 		fps = 1/temp_time;
 		fps_sum+=fps;
@@ -218,14 +222,14 @@ int main(int argc, char* argv[]) {
 		printf("<<<<<<<<<<<<<<<<<<<<<<< FPS : %f >>>>>>>>>>>>>>>>>>>>>>>>>>>\n", fps);
         printf("<<<<<<<<<<<<<<<<<<<<<< Frame number : %d >>>>>>>>>>>>>>>>>>>>\n", frame_num);
     	if (!video_frame.empty()) visualize_with_labels(video_frame, bboxes, labelDict, fps);
-		else std::cerr << "Error: Unable to load the image: " <<  std::endl;
+		else std::cerr << "Error: Unable to load the image: " << video_filename << std::endl;
 		////////////////////////////////////////////////////////
 		total_time +=temp_time;
-		sync_param = 1.0/REAL_FPS;
+		double sync_param = 1.0/REAL_FPS;
 		sync_param = static_cast<double>(std::round((sync_param)*1000)/1000);
 		next_frame = temp_time / sync_param; // to sync with real-world time stamp
 		printf("<<<<<<<<<<<<<<<<<<<< Next frame number is :%d >>>>>>>>>>>>>>>>>>>>>>\n", next_frame);
-		signal = STOP_SIGNAL(video_frame,bboxes,labelDict, frame_num);
+		bool signal = STOP_SIGNAL(video_frame,bboxes,labelDict, frame_num);
 		if (signal) {
 			clock_gettime(CLOCK_MONOTONIC, &End);
 			double end_time = (End.tv_sec - Begin.tv_sec) +
@@ -242,10 +246,10 @@ int main(int argc, char* argv[]) {
 			cv::waitKey(1);
 		}	
         frame_num+=1;
-		// video_capture.set(CAP_PROP_POS_FRAMES, 0);
 		////////////////////////////////////////////////////////
     }
 	runtime.ShutdownScheduler();
     cv::waitKey(0);
+	// cv::destroyAllWindows();
 }
 
