@@ -31,8 +31,8 @@ void visualize_with_labels(cv::Mat& image, const std::vector<tflite::YOLO_Parser
         cv::rectangle(image, cv::Point(x1, label_y - text_size.height), cv::Point(x1 + text_size.width, label_y + 5), color, -1);
         cv::putText(image, label, cv::Point(x1, label_y), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(255, 255, 255), 2);
     
-		std::string fps_label = "FPS: " + std::to_string(fps);
-    	cv::putText(image, fps_label, cv::Point(10, 30), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(255, 255, 255), 2);
+		//std::string fps_label = "FPS: " + std::to_string(fps);
+    	//cv::putText(image, fps_label, cv::Point(10, 30), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(255, 255, 255), 2);
 	}
 }
 
