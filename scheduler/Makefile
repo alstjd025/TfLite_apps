@@ -6,7 +6,8 @@ scheduler : scheduler.cc
 		-I/home/nvidia/FBF-TF/tensorflow/lite/tools/make/downloads/absl\
 		-L/home/nvidia/FBF-TF/tensorflow/lite/tools/make/downloads/flatbuffers/build\
 		-lopencv_gapi\
-		-ltensorflow-lite\
+		-lyaml-cpp\
+	        -ltensorflow-lite\
 		-lflatbuffers /lib/aarch64-linux-gnu/libdl.so.2\
 		-lopencv_stitching -lopencv_alphamat -lopencv_aruco -lopencv_bgsegm\
 		-lopencv_bioinspired -lopencv_ccalib\
@@ -25,8 +26,8 @@ scheduler : scheduler.cc
 		/home/nvidia/FBF-TF/bazel-bin/tensorflow/lite/delegates/gpu/libtensorflowlite_gpu_delegate.so\
 		/home/nvidia/FBF-TF/bazel-bin/tensorflow/lite/delegates/xnnpack/libxnnpack_delegate.so\
 		/usr/lib/aarch64-linux-gnu/libEGL.so\
-		/usr/lib/aarch64-linux-gnu/libGL.so /usr/lib/aarch64-linux-gnu/libGLESv2.so
-	
+		/usr/lib/aarch64-linux-gnu/libGL.so /usr/lib/aarch64-linux-gnu/libGLESv2.so\
+	        /usr/lib/aarch64-linux-gnu/libyaml-cpp.so
 
 scheduler_odroid : scheduler.cc
 	g++ -o scheduler scheduler.cc -I/usr/include/opencv4\
@@ -55,4 +56,5 @@ scheduler_odroid : scheduler.cc
 		/home/odroid/FBF-TF/bazel-bin/tensorflow/lite/delegates/gpu/libtensorflowlite_gpu_delegate.so\
 		/home/odroid/FBF-TF/bazel-bin/tensorflow/lite/delegates/xnnpack/libxnnpack_delegate.so\
 		/usr/lib/arm-linux-gnueabihf/libEGL.so\
-		/usr/lib/arm-linux-gnueabihf/libGL.so /usr/lib/arm-linux-gnueabihf/libGLESv2.so
+		/usr/lib/arm-linux-gnueabihf/libGL.so /usr/lib/arm-linux-gnueabihf/libGLESv2.so\
+	        /usr/lib/arm-linux-gnueabihf/libyaml-cpp.so
