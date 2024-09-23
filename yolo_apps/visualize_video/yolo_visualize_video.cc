@@ -52,8 +52,8 @@ void visualize_with_labels(cv::Mat& image, const std::vector<tflite::YOLO_Parser
         cv::rectangle(image, cv::Point(x1, label_y - text_size.height), cv::Point(x1 + text_size.width, label_y + 5), color, -1);
         cv::putText(image, label, cv::Point(x1, label_y), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(255, 255, 255), 2);
     
-		std::string fps_label = "FPS: " + std::to_string(fps);
-    	cv::putText(image, fps_label, cv::Point(10, 30), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(255, 255, 255), 2);
+		// std::string fps_label = "FPS: " + std::to_string(fps);
+    	// cv::putText(image, fps_label, cv::Point(10, 30), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(255, 255, 255), 2);
 	}
 }
 
@@ -69,11 +69,10 @@ bool STOP_SIGNAL(cv::Mat& image,std::vector<tflite::YOLO_Parser::BoundingBox>& r
 		if(object_name == "person") SIGNAL = true;
 	}
 	if(SIGNAL) {
-		printf("\033[0;31m<<<<<<<<< STOP SIGNAL >>>>>>>>>\033[0m\n");
 		std::string label = "STOP SIGNAL";
     	cv::putText(image, label, cv::Point(10, 100), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(0, 0, 255), 2);
-		std::string fn = "Frame num : " + to_string(frame_num);
-    	cv::putText(image, fn, cv::Point(10, 70), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(0, 0, 255), 1);
+		// std::string fn = "Frame num : " + to_string(frame_num);
+    	// cv::putText(image, fn, cv::Point(10, 70), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(0, 0, 255), 1);
 		return true;
 	}
 	return false;
@@ -183,6 +182,8 @@ int main(int argc, char* argv[]) {
 	double total_time = 0;
 	int detected_frame = 0;
 	double fps_sum=0;
+	bool SIG_END = false;
+	std::string output_folder = "output_frames/"; ///// 0625
 	clock_gettime(CLOCK_MONOTONIC, &Begin);
 	while (video_capture.read(video_frame)) {
 		////////////////////////////////////////////
@@ -230,26 +231,44 @@ int main(int argc, char* argv[]) {
 		next_frame = temp_time / sync_param; // to sync with real-world time stamp
 		// printf("<<<<<<<<<<<<<<<<<<<< Next frame number is :%d >>>>>>>>>>>>>>>>>>>>>>\n", next_frame);
 		bool signal = STOP_SIGNAL(video_frame,bboxes,labelDict, frame_num);
-		if (signal) {
+
+		if (signal && !SIG_END) {
 			clock_gettime(CLOCK_MONOTONIC, &End);
 			double end_time = (End.tv_sec - Begin.tv_sec) +
                          ((End.tv_nsec - Begin.tv_nsec) / 1000000000.0);
-			std::string time = "Total time : " + to_string(end_time) + "s";
-    		cv::putText(video_frame, time, cv::Point(10, 40), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(0, 0, 255), 1);
-			cv::imshow(window_name, video_frame);
-		    printf("<<<<<<<<<<<<<<<<<<<< Total detected frame is : %d >>>>>>>>>>>>>>>>>>>>>>\n", detected_frame);
-			printf("<<<<<<<<<<<<<<<<<<<< Human detected frame is : %d >>>>>>>>>>>>>>>>>>>>>>\n", frame_num);
-			printf("<<<<<<<<<<<<<<<<<<<< Average inference fps is : %f >>>>>>>>>>>>>>>>>>>>>>\n", fps_sum/detected_frame);
-			cv::waitKey(0);
+			// std::string time = "Total time : " + to_string(end_time) + "s";
+    		// cv::putText(video_frame, time, cv::Point(10, 40), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(0, 0, 255), 1);
+			
+			// cv::imshow(window_name, video_frame);
+		    printf("\033[0;31m<<<<<<<<< STOP SIGNAL >>>>>>>>>\033[0m\n");
+			printf("..................... Response time        is : %.3fs    .....................\n", end_time);
+			printf("..................... Human detected frame is : %d       .....................\n", frame_num);
+			printf("..................... Total detected frame is : %d/%d    .....................\n", detected_frame, frame_num);
+			printf("..................... Average inference fps is : %.3ffps .....................\n", fps_sum/detected_frame);
+			printf("..................... Last inference latency is : %.3fms .....................\n", temp_time*1000);
+			std::string output_image = output_folder + "result_image.png"; ///// 0625
+            cv::imwrite(output_image, video_frame);
+			std::string output_log = output_folder + "result_log.txt"; 
+			std::ofstream outFile(output_log);
+			outFile << "Response time = " << end_time << "s" << std::endl;
+			outFile << "Human detected frame = " << frame_num << std::endl;
+			outFile << "Total detected frame = " << detected_frame << "/" <<  frame_num<< std::endl;
+			outFile << "Average inference fps = " << fps_sum/detected_frame << "fps" << std::endl;
+			outFile << "Last inference latency = " << temp_time*1000 << "ms" << std::endl;
+			outFile.close();
+			// cv::waitKey(0);
+			SIG_END = true;
 		}
 	    else{
-			cv::imshow(window_name, video_frame);
-			cv::waitKey(1);
+			// cv::imshow(window_name, video_frame);
+			std::string output_image = output_folder + "frame_" + std::to_string(frame_num) + ".png";
+            cv::imwrite(output_image, video_frame);
+			// cv::waitKey(1);
 		}	
         frame_num+=1;
 		////////////////////////////////////////////////////////
     }
 	runtime.ShutdownScheduler();
-    cv::waitKey(0);
+    // cv::waitKey(0);
 	// cv::destroyAllWindows();
 }

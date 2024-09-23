@@ -3,6 +3,12 @@
 #include <cmath>
 #include <numeric>
 #include <ostream>
+#include <iostream>
+#include <cstring>
+#include <sys/socket.h>
+#include <arpa/inet.h>
+#include <unistd.h>
+
 
 using namespace cv;
 using namespace std;
@@ -11,8 +17,11 @@ using namespace std;
 #define SCHEDULER_SOCK "/home/nvidia/TfLite_apps/sock/scheduler"
 
 #define REAL_FPS 30
+#define PORT 8080
+#define SERVER_IP "192.168.0.6"
+#define BUFFER_SIZE 1024
 
-void visualize_with_labels(cv::Mat& image, const std::vector<tflite::YOLO_Parser::BoundingBox>& bboxes, std::map<int, std::string>& labelDict, float fps) {
+void visualize_with_labels(cv::Mat& image, const std::vector<tflite::YOLO_Parser::BoundingBox>& bboxes, std::map<int, std::string>& labelDict) {
     for (const tflite::YOLO_Parser::BoundingBox& bbox : bboxes) {
         int x1 = bbox.left;
         int y1 = bbox.top;
@@ -29,25 +38,19 @@ void visualize_with_labels(cv::Mat& image, const std::vector<tflite::YOLO_Parser
         std::string label = object_name + ": " + std::to_string(confidence_score);
         cv::Size text_size = cv::getTextSize(label, cv::FONT_HERSHEY_SIMPLEX, 0.6, 2, nullptr);
         cv::rectangle(image, cv::Point(x1, label_y - text_size.height), cv::Point(x1 + text_size.width, label_y + 5), color, -1);
-        cv::putText(image, label, cv::Point(x1, label_y), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(255, 255, 255), 2);
-    
-		//std::string fps_label = "FPS: " + std::to_string(fps);
-    	//cv::putText(image, fps_label, cv::Point(10, 30), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(255, 255, 255), 2);
+        cv::putText(image, label, cv::Point(x1, label_y), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(255, 255, 255), 2);    
 	}
 }
 
-bool STOP_SIGNAL(cv::Mat& image,std::vector<tflite::YOLO_Parser::BoundingBox>& result_boxes,std::map<int, std::string>& labelDict, int frame_num) {
+bool STOP_SIGNAL(cv::Mat& image,std::vector<tflite::YOLO_Parser::BoundingBox>& result_boxes,std::map<int, std::string>& labelDict) {
 	bool SIGNAL = false;
 	for (int i=0; i <result_boxes.size(); i++) { 
 		auto object_name = labelDict[result_boxes[i].class_id];
 		if(object_name == "person") SIGNAL = true;
 	}
 	if(SIGNAL) {
-		printf("\033[0;31m<<<<<<<<< STOP SIGNAL >>>>>>>>>\033[0m\n");
 		std::string label = "STOP SIGNAL";
     	cv::putText(image, label, cv::Point(10, 100), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(0, 0, 255), 2);
-		// std::string fn = "Frame num : " + to_string(frame_num);
-    	// cv::putText(image, fn, cv::Point(10, 70), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(0, 0, 255), 1);
 		return true;
 	}
 	return false;
@@ -82,6 +85,24 @@ int main(int argc, char* argv[]) {
 			fprintf(stderr, "minimal <tflite model>\n");
 			return 1;
 	}
+	//socket init
+	int sockfd;
+    struct sockaddr_in server_addr;
+    char buffer[BUFFER_SIZE];
+
+    // 소켓 생성
+    if ((sockfd = socket(AF_INET, SOCK_DGRAM, 0)) < 0) {
+        perror("socket creation failed");
+        exit(EXIT_FAILURE);
+    }
+
+    memset(&server_addr, 0, sizeof(server_addr));
+
+    // 서버 정보 설정
+    server_addr.sin_family = AF_INET;
+    server_addr.sin_port = htons(PORT);
+    server_addr.sin_addr.s_addr = inet_addr(SERVER_IP);
+	std::string message = "0";
 	tflite::DEVICE_TYPE device_type;
 	#ifndef ODROID_
 	device_type = tflite::DEVICE_TYPE::XAVIER;
@@ -128,12 +149,7 @@ int main(int argc, char* argv[]) {
 	runtime.SetLogPath(log_path);
 	runtime.InitLogFile();
 	runtime.WriteInitStateLog();
-
-	// For video capture
-	//std::string video_filename = "40.mp4";
-	//std::string video_filename = "25.mp4";
-	//cv::VideoCapture video_capture(video_filename); 
-	
+	std::cout << "before capture" << "\n";	
 	// For streaming camera frame
 	//cv::VideoCapture video_capture("udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, payload=(int)96 ! rtph264depay ! h264parse ! queue ! omxh264dec ! queue! videorate ! video/x-raw,framerate=15/1 ! videoconvert ! appsink", CAP_GSTREAMER);
 	//cv::VideoCapture video_capture("udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, payload=(int)96 ! rtph264depay ! h264parse ! queue ! decodebin ! queue! videorate ! video/x-raw,framerate=15/1 ! nvvideoconvert ! videoconvert ! appsink", CAP_GSTREAMER);
@@ -141,7 +157,7 @@ int main(int argc, char* argv[]) {
 	// cv::VideoCapture video_capture("udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, payload=(int)96 ! rtph264depay ! h264parse ! queue ! avdec_h264 ! queue! videorate ! video/x-raw,framerate=15/1 ! videoconvert ! appsink", CAP_GSTREAMER);
 	//cv::VideoCapture video_capture("udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, payload=(int)96 ! rtph264depay ! h264parse ! queue ! avdec_h264 ! queue! videorate ! video/x-raw! videoconvert ! appsink", CAP_GSTREAMER);
 	cv::VideoCapture video_capture("udpsrc port=5000 ! application/x-rtp, media=(string)video, clock-rate=(int)90000, encoding-name=(string)H264, payload=(int)96 ! rtph264depay ! h264parse ! queue ! avdec_h264 ! queue! videorate ! video/x-raw,framerate=20/1 ! videoconvert ! appsink", CAP_GSTREAMER);
-
+	std::cout << "make video_capture instance\n";
 	if (!video_capture.isOpened()) {
         return -1;
     }
@@ -153,23 +169,24 @@ int main(int argc, char* argv[]) {
 	struct timespec Begin, End;
 	int frame_index =0;
 	int next_frame=0;
-	// choosen video capture index should be [Ours time stamp / Real World time stamp]
-	////////////////////////////////////////////////////////////
 	double total_time = 0;
 	int detected_frame = 0;
 	double fps_sum=0;
-	// cv::Mat video_frame_copy;
-	clock_gettime(CLOCK_MONOTONIC, &Begin);
-	// std::string window_name_o = "original image";
 	std::string window_name = "parsed image";
-	// cv::namedWindow(window_name_o, cv::WINDOW_NORMAL);
 	cv::namedWindow(window_name, cv::WINDOW_NORMAL);
 	double temp_time=0;
 	double sync_param=0;
 	bool signal = false;
+	bool SIG_END = false;
+	std::string output_folder = "output_frames/"; 
+	std::cout << "connecting to host" << "\n";
+	sendto(sockfd, message.c_str(), message.size(), MSG_CONFIRM, (const struct sockaddr *)&server_addr, sizeof(server_addr));
+	int n = recvfrom(sockfd, (char *)buffer, BUFFER_SIZE, MSG_WAITALL, nullptr, nullptr);
+	buffer[n] = '\0';
+	std::cout << "Server: " << buffer << std::endl;
+
+	clock_gettime(CLOCK_MONOTONIC, &Begin);
 	while (video_capture.read(video_frame)) {
-		// video_frame_copy = video_frame;
-		// cv::imshow(window_name_o, video_frame_copy);
 		if(frame_index != next_frame) {
 			frame_index+=1;
 			// std::cout << "JUMP FRAME\n";
@@ -193,38 +210,48 @@ int main(int argc, char* argv[]) {
 		fps = 1/temp_time;
 		fps_sum+=fps;
 		detected_frame+=1;
-		// printf("<<<<<<<<<<<<<<<<<<<<<<< FPS : %f >>>>>>>>>>>>>>>>>>>>>>>>>>>\n", fps);
-        // printf("<<<<<<<<<<<<<<<<<<<<<< Frame number : %d >>>>>>>>>>>>>>>>>>>>\n", frame_num);
-    	if (!video_frame.empty()) visualize_with_labels(video_frame, bboxes, labelDict, fps);
+    	if (!video_frame.empty()) visualize_with_labels(video_frame, bboxes, labelDict);
 		else std::cerr << "Error: Unable to load the image: " <<  std::endl;
-		////////////////////////////////////////////////////////
 		total_time +=temp_time;
 		sync_param = 1.0/REAL_FPS;
 		sync_param = static_cast<double>(std::round((sync_param)*1000)/1000);
 		next_frame = temp_time / sync_param; // to sync with real-world time stamp
-		printf("<<<<<<<<<<<<<<<<<<<< Next frame number is :%d >>>>>>>>>>>>>>>>>>>>>>\n", next_frame);
-		signal = STOP_SIGNAL(video_frame,bboxes,labelDict, frame_num);
-		if (signal) {
+		signal = STOP_SIGNAL(video_frame,bboxes,labelDict);
+		if (signal && !SIG_END) {
+			std::string e_stop_msg = "1";
+			sendto(sockfd, e_stop_msg.c_str(), e_stop_msg.size(), MSG_CONFIRM, (const struct sockaddr *)&server_addr, sizeof(server_addr));
 			clock_gettime(CLOCK_MONOTONIC, &End);
 			double end_time = (End.tv_sec - Begin.tv_sec) +
                          ((End.tv_nsec - Begin.tv_nsec) / 1000000000.0);
-			// std::string time = "Total time : " + to_string(end_time) + "s";
-    		// cv::putText(video_frame, time, cv::Point(10, 40), cv::FONT_HERSHEY_SIMPLEX, 0.6, cv::Scalar(0, 0, 255), 1);
-			cv::imshow(window_name, video_frame);
-			printf("<<<<<<<<<<<<<<<<<<<< Response time         is : %.6f >>>>>>>>>>>>>>>>>>>>>>\n", end_time);
-			printf("<<<<<<<<<<<<<<<<<<<< Total detected frame is : %d >>>>>>>>>>>>>>>>>>>>>>\n", detected_frame);
-			printf("<<<<<<<<<<<<<<<<<<<< Human detected frame  is : %d >>>>>>>>>>>>>>>>>>>>>>\n", frame_num);
-			printf("<<<<<<<<<<<<<<<<<<<< Average inference fps is : %.6f >>>>>>>>>>>>>>>>>>>>>>\n", fps_sum/detected_frame);
-			cv::waitKey(0);
+			// cv::imshow(window_name, video_frame);
+			printf("\033[0;31m<<<<<<<<< STOP SIGNAL >>>>>>>>>\033[0m\n");
+			printf("..................... Response time        is : %.3fs    .....................\n", end_time);
+			printf("..................... Human detected frame is : %d       .....................\n", frame_num);
+			printf("..................... Total detected frame is : %d/%d    .....................\n", detected_frame, frame_num);
+			printf("..................... Average inference fps is : %.3ffps .....................\n", fps_sum/detected_frame);
+			printf("..................... Last inference latency is : %.3fms .....................\n", temp_time*1000);
+			std::string output_image = output_folder + "result_image.png"; ///// 0625
+            cv::imwrite(output_image, video_frame);
+			std::string output_log = output_folder + "result_log.txt"; 
+			std::ofstream outFile(output_log);
+			outFile << "Response time = " << end_time << "s" << std::endl;
+			outFile << "Human detected frame = " << frame_num << std::endl;
+			outFile << "Total detected frame = " << detected_frame << "/" <<  frame_num<< std::endl;
+			outFile << "Average inference fps = " << fps_sum/detected_frame << "fps" << std::endl;
+			outFile << "Last inference latency = " << temp_time*1000 << "ms" << std::endl;
+			outFile.close();
+			// cv::waitKey(0);
+			SIG_END = true;
 		}
 	    else{
-			cv::imshow(window_name, video_frame);
-			cv::waitKey(1);
+			//cv::imshow(window_name, video_frame);
+			std::string output_image = output_folder + "frame_" + std::to_string(frame_num) + ".png";
+            cv::imwrite(output_image, video_frame);
+			//cv::waitKey(1);
 		}	
         frame_num+=1;
-		// video_capture.set(CAP_PROP_POS_FRAMES, 0);
 		////////////////////////////////////////////////////////
     }
 	runtime.ShutdownScheduler();
-    cv::waitKey(0);
+    // cv::waitKey(0);
 }

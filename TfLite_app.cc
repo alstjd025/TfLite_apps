@@ -428,7 +428,7 @@ int main(int argc, char* argv[]) {
   ParseLabels();
   std::cout << "Inference start"
             << "\n";
-
+  
   while (n < OUT_SEQ) {
 // std::cout << "[LiteRuntime] invoke : " << n << "\n";
    //runtime.CopyInputToInterpreter(first_model, input_mnist[n % 2],
@@ -459,6 +459,7 @@ int main(int argc, char* argv[]) {
     // PrintRawOutput(output);
     // ParseOutput(uintoutput);
     // ParseOutput(output);
+    // std::this_thread::sleep_for(std::chrono::seconds(1));
   }
   runtime.ShutdownScheduler();
   double average_latency = 0;
