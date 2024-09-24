@@ -1,8 +1,8 @@
 #!/bin/bash
 
-AppPath="/home/nvidia/TfLite_apps"
+AppPath="/home/nano/TfLite_apps"
 TflitePath="../FBF-TF/tensorflow/lite/tools/make"
-Tensorflowpath="home/nvidia/FBF-TF"
+Tensorflowpath="home/nano/FBF-TF"
 
 
 echo "TfLite test application build"

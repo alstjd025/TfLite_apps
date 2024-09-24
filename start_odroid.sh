@@ -5,7 +5,7 @@ TflitePath="../FBF-TF/tensorflow/lite/tools/make"
 Tensorflowpath="home/odroid/FBF-TF"
 
 
-echo "TfLite Unit_simple Test"
+echo "TfLite test application build"
 
 . ${TflitePath}/build_bbb_lib.sh
 
