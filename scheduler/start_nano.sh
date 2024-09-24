@@ -1,7 +1,7 @@
 #!/bin/bash
 
 AppPath="/home/nano/TfLite_apps"
-TflitePath="../FBF-TF/tensorflow/lite/tools/make"
+TflitePath="../../FBF-TF/tensorflow/lite/tools/make"
 Tensorflowpath="home/nano/FBF-TF"
 
 

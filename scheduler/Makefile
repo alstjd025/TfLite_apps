@@ -30,7 +30,7 @@ scheduler : scheduler.cc
 	        /usr/lib/aarch64-linux-gnu/libyaml-cpp.so
 
 scheduler_nano : scheduler.cc
-	g++ -o scheduler scheduler.cc -I/usr/include/opencv4\	
+	g++ -o scheduler scheduler.cc -I/usr/include/opencv4\
 		-pthread -g -I/home/nano/FBF-TF\
 		-I/home/nano/FBF-TF/tensorflow/lite/tools/make/downloads/flatbuffers/include\
 		-L/home/nano/FBF-TF/tensorflow/lite/tools/make/gen/linux_aarch64/lib\
