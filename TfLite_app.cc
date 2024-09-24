@@ -21,8 +21,9 @@ using namespace std;
 #define RUNTIME_SOCK "/home/odroid/TfLite_apps/sock/runtime_1"
 #define SCHEDULER_SOCK "/home/odroid/TfLite_apps/sock/scheduler"
 #define ROOT_DIR "/home/odroid/TfLite_apps/image"
-
 #endif
+
+#define elapsed_time
 
 std::vector<std::string> coco_label;
 std::vector<std::string> imagenet_label;
@@ -401,7 +402,8 @@ int main(int argc, char* argv[]) {
 #endif
 
   std::vector<double> response_time;
-  struct timespec begin, end;
+  struct timespec app_begin, inference_begin, inference_end;
+  double elapsed_time_ = 0;
   int n = 0;
   std::cout << "Initialize runtime"
             << "\n";
@@ -428,14 +430,16 @@ int main(int argc, char* argv[]) {
   ParseLabels();
   std::cout << "Inference start"
             << "\n";
-  
+  #ifdef elapsed_time
+    clock_gettime(CLOCK_MONOTONIC, &app_begin);
+  #endif
   while (n < OUT_SEQ) {
-// std::cout << "[LiteRuntime] invoke : " << n << "\n";
-   //runtime.CopyInputToInterpreter(first_model, input_mnist[n % 2],
-   //                             input_mnist[n % 2]);
-				runtime.CopyInputToInterpreter(first_model, input_imagenet[n % 2],
-                                   input_imagenet[n % 2]);
-    clock_gettime(CLOCK_MONOTONIC, &begin);
+    //std::cout << "[LiteRuntime] invoke : " << n << "\n";
+    //runtime.CopyInputToInterpreter(first_model, input_mnist[n % 2],
+    //                             input_mnist[n % 2]);
+    runtime.CopyInputToInterpreter(first_model, input_imagenet[n % 2],
+                                input_imagenet[n % 2]);
+    clock_gettime(CLOCK_MONOTONIC, &inference_begin);
     if (runtime.Invoke() != kTfLiteOk) {
       std::cout << "Invoke ERROR"
                 << "\n";
@@ -443,11 +447,17 @@ int main(int argc, char* argv[]) {
       exit(-1);
     }
 
-    clock_gettime(CLOCK_MONOTONIC, &end);
+    clock_gettime(CLOCK_MONOTONIC, &inference_end);
     if (n >= 0) {  // drop first invoke's data.
-      double temp_time = (end.tv_sec - begin.tv_sec) +
-                         ((end.tv_nsec - begin.tv_nsec) / 1000000000.0);
-      printf("n %d latency %.6f \n", n, temp_time);
+      double temp_time = (inference_end.tv_sec - inference_begin.tv_sec) +
+                         ((inference_end.tv_nsec - inference_begin.tv_nsec) / 1000000000.0);
+  #ifdef elapsed_time
+      elapsed_time_ += temp_time;
+      printf("%d elapsed_time %.6f latency %.6f", elapsed_time_, temp_time);
+  #endif
+  #ifndef elapsed_time
+      printf("%d latency %.6f \n", n, temp_time);
+  #endif
       response_time.push_back(temp_time);
     }
     n++;
