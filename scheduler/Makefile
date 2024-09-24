@@ -29,6 +29,31 @@ scheduler : scheduler.cc
 		/usr/lib/aarch64-linux-gnu/libGL.so /usr/lib/aarch64-linux-gnu/libGLESv2.so\
 	        /usr/lib/aarch64-linux-gnu/libyaml-cpp.so
 
+scheduler_nano : scheduler.cc
+	g++ -o scheduler scheduler.cc -I/usr/include/opencv4\	
+		-pthread -g -I/home/nano/FBF-TF\
+		-I/home/nano/FBF-TF/tensorflow/lite/tools/make/downloads/flatbuffers/include\
+		-L/home/nano/FBF-TF/tensorflow/lite/tools/make/gen/linux_aarch64/lib\
+		-I/home/nano/FBF-TF/tensorflow/lite/tools/make/downloads/absl\
+		-L/home/nano/FBF-TF/tensorflow/lite/tools/make/downloads/flatbuffers/build\
+		-lyaml-cpp\
+		-lopencv_gapi\
+		-ltensorflow-lite\
+		-lflatbuffers /lib/aarch64-linux-gnu/libdl.so.2\
+		-lopencv_stitching\
+		-lopencv_highgui\
+		-lopencv_dnn\
+		-lopencv_videoio\
+		-lopencv_ml -lopencv_video\
+		-lopencv_calib3d -lopencv_imgcodecs -lopencv_features2d -lopencv_flann\
+		-lopencv_photo -lopencv_imgproc\
+		-lopencv_core\
+		/home/nano/FBF-TF/bazel-bin/tensorflow/lite/delegates/gpu/libtensorflowlite_gpu_delegate.so\
+		/home/nano/FBF-TF/bazel-bin/tensorflow/lite/delegates/xnnpack/libxnnpack_delegate.so\
+		/usr/lib/aarch64-linux-gnu/libEGL.so\
+		/usr/lib/aarch64-linux-gnu/libGL.so /usr/lib/aarch64-linux-gnu/libGLESv2.so\
+		/usr/lib/aarch64-linux-gnu/libyaml-cpp.so
+
 scheduler_odroid : scheduler.cc
 	g++ -o scheduler scheduler.cc -I/usr/include/opencv4\
 		-pthread -g -I/home/odroid/FBF-TF\

@@ -5,9 +5,9 @@ TflitePath="../FBF-TF/tensorflow/lite/tools/make"
 Tensorflowpath="home/nano/FBF-TF"
 
 
-echo "TfLite test application build"
+echo "TfLite test application scheduler build"
 
 . ${TflitePath}/build_aarch64_lib.sh
-touch TfLite_app.cc
-make TfLite_app_nano
+touch scheduler.cc
+make scheduler_nano
 
