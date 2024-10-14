@@ -5,25 +5,29 @@
 #include "tensorflow/lite/lite_runtime.h"
 #include "tensorflow/lite/util.h"
 
-#define OUT_SEQ 100
+#define OUT_SEQ 10
 //#define ODROID_XU4
 
 using namespace cv;
 using namespace std;
 
 #ifndef ODROID_XU4
-#define RUNTIME_SOCK "/home/nvidia/TfLite_apps/sock/runtime_1"
-#define SCHEDULER_SOCK "/home/nvidia/TfLite_apps/sock/scheduler"
+#define RUNTIME_SOCK_1 "/home/nvidia/TfLite_apps/sock/runtime_1"
+#define RUNTIME_SOCK_2 "/home/nvidia/TfLite_apps/sock/runtime_2"
+#define SCHEDULER_SOCK_1 "/home/nvidia/TfLite_apps/sock/scheduler_1"
+#define SCHEDULER_SOCK_2 "/home/nvidia/TfLite_apps/sock/scheduler_2"
 #define ROOT_DIR "/home/nvidia/TfLite_apps/image"
 #endif
 
 #ifdef ODROID_XU4
-#define RUNTIME_SOCK "/home/odroid/TfLite_apps/sock/runtime_1"
-#define SCHEDULER_SOCK "/home/odroid/TfLite_apps/sock/scheduler"
+#define RUNTIME_SOCK_1 "/home/odroid/TfLite_apps/sock/runtime_1"
+#define RUNTIME_SOCK_2 "/home/odroid/TfLite_apps/sock/runtime_2"
+#define SCHEDULER_SOCK_1 "/home/odroid/TfLite_apps/sock/scheduler_1"
+#define SCHEDULER_SOCK_2 "/home/odroid/TfLite_apps/sock/scheduler_2"
 #define ROOT_DIR "/home/odroid/TfLite_apps/image"
 #endif
 
-#define elapsed_time
+// #define elapsed_time
 
 std::vector<std::string> coco_label;
 std::vector<std::string> imagenet_label;
@@ -323,31 +327,20 @@ tflite::INPUT_TYPE GetInputTypeFromString(string input_type) {
 }
 
 int main(int argc, char* argv[]) {
-  const char* first_model;
-  const char* second_model;
+  const char* model;
   std::string input_type_str, sequence_name, log_path;
-  bool bUseTwoModel = false;
-  bool latency_predictor = false;
-  if (argc == 2) {
-    std::cout << "Got One Model \n";
-    first_model = argv[1];
-  } else if (argc == 3) {
-    std::cout << "Got Two Model \n";
-    bUseTwoModel = true;
-    first_model = argv[1];
-    second_model = argv[2];
-  } else if (argc > 5) {
-    std::cout << "Got Two Model and log setups, input type\n";
-    bUseTwoModel = true;
-    first_model = argv[1];
-    second_model = argv[2];
-    input_type_str = argv[3];
-    sequence_name = argv[4];
-    log_path = argv[5];
-    latency_predictor = std::stoi(argv[6]);
+  if (argc == 5){ 
+    std::cout << "Got model: " << argv[1]
+              << "\n input type: " << argv[2]
+              << "\n test sequence name: " << argv[3]
+              << "\n log file path: " << argv[4] << "\n";
+    model = argv[1];
+    input_type_str = argv[2];
+    sequence_name = argv[3];
+    log_path = argv[4];
   } else {
     fprintf(stderr,
-            "<tflite model> <tflite model> <input_type> <sequence_name> "
+            "<tflite model> <input_type> <sequence_name>"
             "<log_path>\n");
     fprintf(stderr, "input_type : IMAGENET224, IMAGENET256, IMAGENET300, COCO416, LANENET\n");
     return 1;
@@ -408,9 +401,8 @@ int main(int argc, char* argv[]) {
   std::cout << "Initialize runtime"
             << "\n";
   // Inittialize runtime
-  tflite::TfLiteRuntime runtime(RUNTIME_SOCK, SCHEDULER_SOCK, first_model,
-                                second_model, input_type, device_type,
-                                latency_predictor);
+  tflite::TfLiteRuntime runtime(RUNTIME_SOCK_1, SCHEDULER_SOCK_1, RUNTIME_SOCK_2,
+                                SCHEDULER_SOCK_2, model, input_type, device_type);
   runtime.SetDeviceType(device_type);
   if (runtime.GetRuntimeState() != tflite::RuntimeState::INVOKE_) {
     std::cout << "Runtime intialization failed"
@@ -437,7 +429,7 @@ int main(int argc, char* argv[]) {
     //std::cout << "[LiteRuntime] invoke : " << n << "\n";
     //runtime.CopyInputToInterpreter(first_model, input_mnist[n % 2],
     //                             input_mnist[n % 2]);
-    runtime.CopyInputToInterpreter(first_model, input_imagenet[n % 2],
+    runtime.CopyInputToInterpreter(model, input_imagenet[n % 2],
                                 input_imagenet[n % 2]);
     clock_gettime(CLOCK_MONOTONIC, &inference_begin);
     if (runtime.Invoke() != kTfLiteOk) {
@@ -453,7 +445,7 @@ int main(int argc, char* argv[]) {
                          ((inference_end.tv_nsec - inference_begin.tv_nsec) / 1000000000.0);
   #ifdef elapsed_time
       elapsed_time_ += temp_time;
-      printf("%d elapsed_time %.6f latency %.6f", elapsed_time_, temp_time);
+      printf("%d elapsed_time %.6f latency %.6f \n", n, elapsed_time_, temp_time);
   #endif
   #ifndef elapsed_time
       printf("%d latency %.6f \n", n, temp_time);
