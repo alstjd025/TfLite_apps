@@ -454,6 +454,7 @@ int main(int argc, char* argv[]) {
     }
     n++;
   }
+  runtime.ShutdownScheduler();
   runtime.InferenceEngineJoin();
 
   // while (n < OUT_SEQ) {
