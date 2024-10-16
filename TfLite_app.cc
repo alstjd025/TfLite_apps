@@ -5,7 +5,7 @@
 #include "tensorflow/lite/lite_runtime.h"
 #include "tensorflow/lite/util.h"
 
-#define OUT_SEQ 10
+#define OUT_SEQ 100
 //#define ODROID_XU4
 
 using namespace cv;
@@ -14,16 +14,20 @@ using namespace std;
 #ifndef ODROID_XU4
 #define RUNTIME_SOCK_1 "/home/nvidia/TfLite_apps/sock/runtime_1"
 #define RUNTIME_SOCK_2 "/home/nvidia/TfLite_apps/sock/runtime_2"
+#define RUNTIME_ENGINE "/home/nvidia/TfLite_apps/sock/runtime_e"
 #define SCHEDULER_SOCK_1 "/home/nvidia/TfLite_apps/sock/scheduler_1"
 #define SCHEDULER_SOCK_2 "/home/nvidia/TfLite_apps/sock/scheduler_2"
+#define SCHEDULER_ENGINE "/home/nvidia/TfLite_apps/sock/scheduler_e"
 #define ROOT_DIR "/home/nvidia/TfLite_apps/image"
 #endif
 
 #ifdef ODROID_XU4
 #define RUNTIME_SOCK_1 "/home/odroid/TfLite_apps/sock/runtime_1"
 #define RUNTIME_SOCK_2 "/home/odroid/TfLite_apps/sock/runtime_2"
+#define RUNTIME_ENGINE "/home/odroid/TfLite_apps/sock/runtime_e"
 #define SCHEDULER_SOCK_1 "/home/odroid/TfLite_apps/sock/scheduler_1"
 #define SCHEDULER_SOCK_2 "/home/odroid/TfLite_apps/sock/scheduler_2"
+#define SCHEDULER_ENGINE "/home/odroid/TfLite_apps/sock/scheduler_e"
 #define ROOT_DIR "/home/odroid/TfLite_apps/image"
 #endif
 
@@ -353,13 +357,6 @@ int main(int argc, char* argv[]) {
   tflite::INPUT_TYPE input_type;
   input_type = GetInputTypeFromString(input_type_str);
 
-// FOR MNIST TEST INPUT
-// std::cout << "Loading images \n";
-// read_Mnist("images/mnist/train-images-idx3-ubyte", input_mnist);
-// std::cout << "Loading Labels \n";
-// read_Mnist_Label("labels/mnist/train-labels-idx1-ubyte", arr);
-// std::cout << "Loading Mnist Image, Label Complete \n";
-
 #ifndef ODROID_XU4
   // read_image_opencv("/home/nvidia/TfLite_apps/images/lane/lane.jpg",
   //                   input_imagenet, input_type);
@@ -398,18 +395,22 @@ int main(int argc, char* argv[]) {
   struct timespec app_begin, inference_begin, inference_end;
   double elapsed_time_ = 0;
   int n = 0;
-  std::cout << "Initialize runtime"
-            << "\n";
+  std::cout << "Initialize runtime" << "\n";
   // Inittialize runtime
+
+  // 생성자부터 하나의 쓰레드로 생성
   tflite::TfLiteRuntime runtime(RUNTIME_SOCK_1, SCHEDULER_SOCK_1, RUNTIME_SOCK_2,
-                                SCHEDULER_SOCK_2, model, input_type, device_type);
-  runtime.SetDeviceType(device_type);
+                                SCHEDULER_SOCK_2, RUNTIME_ENGINE, SCHEDULER_ENGINE,
+                                model, input_type, device_type);
+  //[asynch todo] 생성자 안으로 넣기
   if (runtime.GetRuntimeState() != tflite::RuntimeState::INVOKE_) {
     std::cout << "Runtime intialization failed"
               << "\n";
     runtime.ShutdownScheduler();
     return 0;
   }
+  //[asynch todo]
+
   // Set input type for interpreter
   runtime.SetTestSequenceName(sequence_name);
   runtime.SetLogPath(log_path);
@@ -425,45 +426,75 @@ int main(int argc, char* argv[]) {
   #ifdef elapsed_time
     clock_gettime(CLOCK_MONOTONIC, &app_begin);
   #endif
-  while (n < OUT_SEQ) {
-    //std::cout << "[LiteRuntime] invoke : " << n << "\n";
-    //runtime.CopyInputToInterpreter(first_model, input_mnist[n % 2],
-    //                             input_mnist[n % 2]);
+  //[asynch todo] Invoke도 생성자 안에 넣기
+  while(n < OUT_SEQ){
+    // runtime input copy
+    // inference request (runtime.send_inference_request)
+    // return check
+    // get output
     runtime.CopyInputToInterpreter(model, input_imagenet[n % 2],
                                 input_imagenet[n % 2]);
     clock_gettime(CLOCK_MONOTONIC, &inference_begin);
-    if (runtime.Invoke() != kTfLiteOk) {
-      std::cout << "Invoke ERROR"
-                << "\n";
-      runtime.ShutdownScheduler();
-      exit(-1);
+    if(runtime.EngineInvoke() != kTfLiteOk){
+      std::cout << "TfLite_app: Inference returned error" << "\n";
+      return -1;
     }
-
     clock_gettime(CLOCK_MONOTONIC, &inference_end);
     if (n >= 0) {  // drop first invoke's data.
       double temp_time = (inference_end.tv_sec - inference_begin.tv_sec) +
                          ((inference_end.tv_nsec - inference_begin.tv_nsec) / 1000000000.0);
-  #ifdef elapsed_time
+      #ifdef elapsed_time
       elapsed_time_ += temp_time;
       printf("%d elapsed_time %.6f latency %.6f \n", n, elapsed_time_, temp_time);
-  #endif
-  #ifndef elapsed_time
+      #endif
+      #ifndef elapsed_time
       printf("%d latency %.6f \n", n, temp_time);
-  #endif
+      #endif
       response_time.push_back(temp_time);
     }
     n++;
-    // std::cout << "\n";
-    // output = runtime.GetFloatOutputInVector();
-    // uintoutput = runtime.GetUintOutputInVector();
-    // PrintRawOutputMinMax(output);
-    // PrintRawOutputMinMax(uintoutput);
-    // PrintRawOutput(output);
-    // ParseOutput(uintoutput);
-    // ParseOutput(output);
-    // std::this_thread::sleep_for(std::chrono::seconds(1));
   }
-  runtime.ShutdownScheduler();
+  runtime.InferenceEngineJoin();
+
+  // while (n < OUT_SEQ) {
+  //   //std::cout << "[LiteRuntime] invoke : " << n << "\n";
+  //   //runtime.CopyInputToInterpreter(first_model, input_mnist[n % 2],
+  //   //                             input_mnist[n % 2]);
+  //   runtime.CopyInputToInterpreter(model, input_imagenet[n % 2],
+  //                               input_imagenet[n % 2]);
+  //   clock_gettime(CLOCK_MONOTONIC, &inference_begin);
+  //   if (runtime.Invoke() != kTfLiteOk) {
+  //     std::cout << "Invoke ERROR"
+  //               << "\n";
+  //     runtime.ShutdownScheduler();
+  //     exit(-1);
+  //   }
+
+  //   clock_gettime(CLOCK_MONOTONIC, &inference_end);
+  //   if (n >= 0) {  // drop first invoke's data.
+  //     double temp_time = (inference_end.tv_sec - inference_begin.tv_sec) +
+  //                        ((inference_end.tv_nsec - inference_begin.tv_nsec) / 1000000000.0);
+  // #ifdef elapsed_time
+  //     elapsed_time_ += temp_time;
+  //     printf("%d elapsed_time %.6f latency %.6f \n", n, elapsed_time_, temp_time);
+  // #endif
+  // #ifndef elapsed_time
+  //     printf("%d latency %.6f \n", n, temp_time);
+  // #endif
+  //     response_time.push_back(temp_time);
+  //   }
+  //   n++;
+  //   // std::cout << "\n";
+  //   // output = runtime.GetFloatOutputInVector();
+  //   // uintoutput = runtime.GetUintOutputInVector();
+  //   // PrintRawOutputMinMax(output);
+  //   // PrintRawOutputMinMax(uintoutput);
+  //   // PrintRawOutput(output);
+  //   // ParseOutput(uintoutput);
+  //   // ParseOutput(output);
+  //   // std::this_thread::sleep_for(std::chrono::seconds(1));
+  // }
+  // runtime.ShutdownScheduler();
   double average_latency = 0;
   for(auto t : response_time){
     average_latency += t;
