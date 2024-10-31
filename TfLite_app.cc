@@ -5,13 +5,30 @@
 #include "tensorflow/lite/lite_runtime.h"
 #include "tensorflow/lite/util.h"
 
-#define OUT_SEQ 1000
+#define INFERENCE_NUM 1000
+
+// Note: target board config
+#define nx
+//#define nano
 //#define ODROID_XU4
+
+// Note: 
+//#define elapsed_time
 
 using namespace cv;
 using namespace std;
 
-#ifndef ODROID_XU4
+#ifdef nx
+#define RUNTIME_SOCK_1 "/home/nvidia/TfLite_apps/sock/runtime_1"
+#define RUNTIME_SOCK_2 "/home/nvidia/TfLite_apps/sock/runtime_2"
+#define RUNTIME_ENGINE "/home/nvidia/TfLite_apps/sock/runtime_e"
+#define SCHEDULER_SOCK_1 "/home/nvidia/TfLite_apps/sock/scheduler_1"
+#define SCHEDULER_SOCK_2 "/home/nvidia/TfLite_apps/sock/scheduler_2"
+#define SCHEDULER_ENGINE "/home/nvidia/TfLite_apps/sock/scheduler_e"
+#define ROOT_DIR "/home/nvidia/TfLite_apps/image"
+#endif
+
+#ifdef nano
 #define RUNTIME_SOCK_1 "/home/nano/TfLite_apps/sock/runtime_1"
 #define RUNTIME_SOCK_2 "/home/nano/TfLite_apps/sock/runtime_2"
 #define RUNTIME_ENGINE "/home/nano/TfLite_apps/sock/runtime_e"
@@ -31,7 +48,6 @@ using namespace std;
 #define ROOT_DIR "/home/odroid/TfLite_apps/image"
 #endif
 
-//#define elapsed_time
 
 std::vector<std::string> coco_label;
 std::vector<std::string> imagenet_label;
@@ -62,7 +78,7 @@ void read_Mnist(string filename, vector<cv::Mat>& vec) {
     n_rows = ReverseInt(n_rows);
     file.read((char*)&n_cols, sizeof(n_cols));
     n_cols = ReverseInt(n_cols);
-    for (int i = 0; i < OUT_SEQ; ++i) {
+    for (int i = 0; i < INFERENCE_NUM; ++i) {
       cv::Mat tp = Mat::zeros(n_rows, n_cols, CV_8UC1);
       for (int r = 0; r < n_rows; ++r) {
         for (int c = 0; c < n_cols; ++c) {
@@ -84,7 +100,7 @@ void read_Mnist(string filename, vector<cv::Mat>& vec) {
 void read_Mnist_Label(string filename, vector<unsigned char>& arr) {
   ifstream file(filename, ios::binary);
   if (file.is_open()) {
-    for (int i = 0; i < OUT_SEQ; ++i) {
+    for (int i = 0; i < INFERENCE_NUM; ++i) {
       unsigned char temp = 0;
       file.read((char*)&temp, sizeof(temp));
       if (i > 7) {
@@ -342,13 +358,13 @@ int main(int argc, char* argv[]) {
   tflite::INPUT_TYPE input_type;
   input_type = GetInputTypeFromString(input_type_str);
 
-#ifndef ODROID_XU4
-  // read_image_opencv("/home/nano/TfLite_apps/images/lane/lane.jpg",
-  //                   input_imagenet, input_type);
+#ifdef nano
   read_image_opencv("/home/nano/TfLite_apps/images/imagenet/banana.jpg",
-                    input_imagenet, input_type);
+                      input_imagenet, input_type);
   read_image_opencv("/home/nano/TfLite_apps/images/imagenet/orange.jpg",
                     input_imagenet, input_type);
+  // read_image_opencv("/home/nano/TfLite_apps/images/lane/lane.jpg",
+  //                   input_imagenet, input_type);
   // read_image_opencv("/home/nano/TfLite_apps/images/coco/keyboard.jpg",
   // input_imagenet, input_type);
   // read_image_opencv("/home/nano/TfLite_apps/images/coco/desk.jpg",
@@ -358,6 +374,23 @@ int main(int argc, char* argv[]) {
   // read_image_opencv_quant("/home/nano/TfLite_apps/images/coco/orange.jpg",
   // input_iamgenet_quant, input_type);
 #endif
+#ifdef nx
+  read_image_opencv("/home/nvidia/TfLite_apps/images/imagenet/banana.jpg",
+                      input_imagenet, input_type);
+  read_image_opencv("/home/nvidia/TfLite_apps/images/imagenet/orange.jpg",
+                    input_imagenet, input_type);
+  // read_image_opencv("/home/nvidia/TfLite_apps/images/lane/lane.jpg",
+  //                   input_imagenet, input_type);
+  // read_image_opencv("/home/nvidia/TfLite_apps/images/coco/keyboard.jpg",
+  // input_imagenet, input_type);
+  // read_image_opencv("/home/nvidia/TfLite_apps/images/coco/desk.jpg",
+  // input_imagenet, input_type);
+  // read_image_opencv_quant("/home/nvidia/TfLite_apps/images/coco/banana_0.jpg",
+  // input_iamgenet_quant, input_type);
+  // read_image_opencv_quant("/home/nvidia/TfLite_apps/images/coco/orange.jpg",
+  // input_iamgenet_quant, input_type);
+#endif
+
 #ifdef ODROID_XU4
   read_image_opencv("/home/odroid/TfLite_apps/images/lane/lane.jpg",
                      input_imagenet, input_type);
@@ -412,7 +445,7 @@ int main(int argc, char* argv[]) {
     clock_gettime(CLOCK_MONOTONIC, &app_begin);
   #endif
   //[asynch todo] Invoke도 생성자 안에 넣기
-  while(n < OUT_SEQ){
+  while(n < INFERENCE_NUM){
     // runtime input copy
     // inference request (runtime.send_inference_request)
     // return check
@@ -435,7 +468,7 @@ int main(int argc, char* argv[]) {
       #ifndef elapsed_time
       printf("%d latency %.6f \n", n, temp_time);
       #endif
-      std::cout << "\n";
+      // std::cout << "\n";
       response_time.push_back(temp_time);
     }
     n++;
@@ -443,7 +476,7 @@ int main(int argc, char* argv[]) {
   runtime.ShutdownScheduler();
   runtime.InferenceEngineJoin();
 
-  // while (n < OUT_SEQ) {
+  // while (n < INFERENCE_NUM) {
   //   //std::cout << "[LiteRuntime] invoke : " << n << "\n";
   //   //runtime.CopyInputToInterpreter(first_model, input_mnist[n % 2],
   //   //                             input_mnist[n % 2]);
@@ -487,5 +520,5 @@ int main(int argc, char* argv[]) {
     average_latency += t;
   }
   average_latency = average_latency / response_time.size();
-  printf("Average response time for %d invokes : %.6fs \n", OUT_SEQ, average_latency);
+  printf("Average response time for %d invokes : %.6fs \n", INFERENCE_NUM, average_latency);
 }
