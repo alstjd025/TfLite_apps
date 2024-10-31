@@ -4,7 +4,7 @@
 #include <numeric>
 #include <ostream>
 
-#define OUT_SEQ 100
+#define INFERENCE_NUM 100
 #define lanenet
 #define twomodel
 
@@ -162,7 +162,7 @@ int main(int argc, char* argv[]) {
 	runtime.InitLogFile();
 	runtime.WriteInitStateLog();
 
-    while(fnum < OUT_SEQ){
+    while(fnum < INFERENCE_NUM){
 		fnum+=1;
 		input.clear();
 		std::string filename = "../../../mAP_TF/input/images-optional/" + std::to_string(fnum) + ".jpg";

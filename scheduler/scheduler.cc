@@ -1,7 +1,19 @@
 #include "tensorflow/lite/tf_scheduler.h"
-//#define ODROID
 
-#ifndef ODROID
+// Note: target board config
+#define nx
+// #define nano
+// #define ODROID
+
+#ifdef nx
+#define SCHEDULER_SOCK "/home/nvidia/TfLite_apps/sock/scheduler_1"
+#define SCHEDULER_ENGINE "/home/nvidia/TfLite_apps/sock/scheduler_e"
+#define SCHEDULER_SOCK_2 "/home/nvidia/TfLite_apps/sock/scheduler_2"
+#define PARTITIONING_PARAMS \
+  "/home/nvidia/TfLite_apps/params/subgraph/[model_type]/"
+#endif
+
+#ifdef nano
 #define SCHEDULER_SOCK "/home/nano/TfLite_apps/sock/scheduler_1"
 #define SCHEDULER_ENGINE "/home/nano/TfLite_apps/sock/scheduler_e"
 #define SCHEDULER_SOCK_2 "/home/nano/TfLite_apps/sock/scheduler_2"
