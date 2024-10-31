@@ -5,20 +5,20 @@
 #include "tensorflow/lite/lite_runtime.h"
 #include "tensorflow/lite/util.h"
 
-#define OUT_SEQ 100
+#define OUT_SEQ 1000
 //#define ODROID_XU4
 
 using namespace cv;
 using namespace std;
 
 #ifndef ODROID_XU4
-#define RUNTIME_SOCK_1 "/home/nvidia/TfLite_apps/sock/runtime_1"
-#define RUNTIME_SOCK_2 "/home/nvidia/TfLite_apps/sock/runtime_2"
-#define RUNTIME_ENGINE "/home/nvidia/TfLite_apps/sock/runtime_e"
-#define SCHEDULER_SOCK_1 "/home/nvidia/TfLite_apps/sock/scheduler_1"
-#define SCHEDULER_SOCK_2 "/home/nvidia/TfLite_apps/sock/scheduler_2"
-#define SCHEDULER_ENGINE "/home/nvidia/TfLite_apps/sock/scheduler_e"
-#define ROOT_DIR "/home/nvidia/TfLite_apps/image"
+#define RUNTIME_SOCK_1 "/home/nano/TfLite_apps/sock/runtime_1"
+#define RUNTIME_SOCK_2 "/home/nano/TfLite_apps/sock/runtime_2"
+#define RUNTIME_ENGINE "/home/nano/TfLite_apps/sock/runtime_e"
+#define SCHEDULER_SOCK_1 "/home/nano/TfLite_apps/sock/scheduler_1"
+#define SCHEDULER_SOCK_2 "/home/nano/TfLite_apps/sock/scheduler_2"
+#define SCHEDULER_ENGINE "/home/nano/TfLite_apps/sock/scheduler_e"
+#define ROOT_DIR "/home/nano/TfLite_apps/image"
 #endif
 
 #ifdef ODROID_XU4
@@ -31,7 +31,7 @@ using namespace std;
 #define ROOT_DIR "/home/odroid/TfLite_apps/image"
 #endif
 
-// #define elapsed_time
+//#define elapsed_time
 
 std::vector<std::string> coco_label;
 std::vector<std::string> imagenet_label;
@@ -260,21 +260,6 @@ void ParseOutput(std::vector<std::vector<float>*>* output) {
   }
   std::cout << "Got " << output->size() << " outputs to parse"
             << "\n";
-  for (int i = 0; i < output->size();
-       ++i) {  // Case of multiple channel output. (which contains bbox, obj
-               // score, classification score)
-    parsed_output.push_back(sigmoid(output->at(i)->at(4)));
-    softmax(*(output->at(i)), parsed_output, 5);
-    int max_element =
-        std::max_element(parsed_output.begin() + 1, parsed_output.end()) -
-        parsed_output.begin();
-    printf("[Detection result] \n");
-    printf("Oscore %.6f, %s %d, %.6f \n", parsed_output[0],
-           coco_label[max_element].c_str(), max_element,
-           parsed_output[max_element]);
-    parsed_output.clear();
-  }
-  // std::cout << "parsed_outputs : " << parsed_output.size() << "\n";
   // for(int idx=0; idx<parsed_output.size()-1; ++idx){
   // 	printf("%s :  %.6f\n", imagenet_label[idx].c_str(), parsed_output[idx]);
   // }
@@ -358,19 +343,19 @@ int main(int argc, char* argv[]) {
   input_type = GetInputTypeFromString(input_type_str);
 
 #ifndef ODROID_XU4
-  // read_image_opencv("/home/nvidia/TfLite_apps/images/lane/lane.jpg",
+  // read_image_opencv("/home/nano/TfLite_apps/images/lane/lane.jpg",
   //                   input_imagenet, input_type);
-  read_image_opencv("/home/nvidia/TfLite_apps/images/imagenet/banana.jpg",
+  read_image_opencv("/home/nano/TfLite_apps/images/imagenet/banana.jpg",
                     input_imagenet, input_type);
-  read_image_opencv("/home/nvidia/TfLite_apps/images/imagenet/orange.jpg",
+  read_image_opencv("/home/nano/TfLite_apps/images/imagenet/orange.jpg",
                     input_imagenet, input_type);
-  // read_image_opencv("/home/nvidia/TfLite_apps/images/coco/keyboard.jpg",
+  // read_image_opencv("/home/nano/TfLite_apps/images/coco/keyboard.jpg",
   // input_imagenet, input_type);
-  // read_image_opencv("/home/nvidia/TfLite_apps/images/coco/desk.jpg",
+  // read_image_opencv("/home/nano/TfLite_apps/images/coco/desk.jpg",
   // input_imagenet, input_type);
-  // read_image_opencv_quant("/home/nvidia/TfLite_apps/images/coco/banana_0.jpg",
+  // read_image_opencv_quant("/home/nano/TfLite_apps/images/coco/banana_0.jpg",
   // input_iamgenet_quant, input_type);
-  // read_image_opencv_quant("/home/nvidia/TfLite_apps/images/coco/orange.jpg",
+  // read_image_opencv_quant("/home/nano/TfLite_apps/images/coco/orange.jpg",
   // input_iamgenet_quant, input_type);
 #endif
 #ifdef ODROID_XU4
@@ -450,6 +435,7 @@ int main(int argc, char* argv[]) {
       #ifndef elapsed_time
       printf("%d latency %.6f \n", n, temp_time);
       #endif
+      std::cout << "\n";
       response_time.push_back(temp_time);
     }
     n++;

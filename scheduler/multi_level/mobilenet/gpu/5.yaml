@@ -1,0 +1,197 @@
+- candidate_level: 0
+  graphs:
+    - op: [0, 1]
+      ratio: 0
+      resource: 3 
+      latency: 0.052633
+      CPUutil: 100
+      GPUutil: 0
+    - op: [2, 3]
+      ratio: 0
+      resource: 3
+      latency: 0.052633
+      CPUutil: 100
+      GPUutil: 0
+    - op: [4, 5]
+      ratio: 0
+      resource: 3
+      latency: 0.052633
+      CPUutil: 100
+      GPUutil: 0
+    - op: [6, 7]
+      ratio: 0
+      resource: 3
+      latency: 0.052633
+      CPUutil: 100
+      GPUutil: 0
+    - op: [8, 9]
+      ratio: 0
+      resource: 3
+      latency: 0.052633
+      CPUutil: 100
+      GPUutil: 0
+    - op: [10, 11]
+      ratio: 0
+      resource: 3
+      latency: 0.052633
+      CPUutil: 100
+      GPUutil: 0
+    - op: [12, 13]
+      ratio: 0
+      resource: 3
+      latency: 0.052633
+      CPUutil: 100
+      GPUutil: 0
+    - op: [14, 15]
+      ratio: 0
+      resource: 3
+      latency: 0.052633
+      CPUutil: 100
+      GPUutil: 0
+    - op: [16, 17]
+      ratio: 0
+      resource: 3
+      latency: 0.052633
+      CPUutil: 100
+      GPUutil: 0
+    - op: [18, 19, 20]
+      ratio: 0
+      resource: 3
+      latency: 0.052633
+      CPUutil: 100
+      GPUutil: 0
+    - op: [21, 22]
+      ratio: 0
+      resource: 3
+      latency: 0.052633
+      CPUutil: 100
+      GPUutil: 0
+    - op: [23]
+      ratio: 0
+      resource: 3
+      latency: 0.052633
+      CPUutil: 100
+      GPUutil: 0
+    - op: [24, 25]
+      ratio: 0
+      resource: 3
+      latency: 0.052633
+      CPUutil: 100
+      GPUutil: 0
+    - op: [26]
+      ratio: 0
+      resource: 3
+      latency: 0.052633
+      CPUutil: 100
+      GPUutil: 0
+    - op: [27, 28]
+      ratio: 0
+      resource: 3
+      latency: 0.052633
+      CPUutil: 100
+      GPUutil: 0
+    - op: [29]
+      ratio: 0
+      resource: 3
+      latency: 0.052633
+      CPUutil: 100
+      GPUutil: 0
+
+- candidate_level: 1
+  graphs:
+    - op: [0, 1]
+      ratio: 0
+      resource: 1 
+      latency: 0.052633
+      CPUutil: 0
+      GPUutil: 100
+    - op: [2, 3]
+      ratio: 0
+      resource: 1
+      latency: 0.052633
+      CPUutil: 0
+      GPUutil: 100
+    - op: [4, 5]
+      ratio: 0
+      resource: 1
+      latency: 0.052633
+      CPUutil: 0
+      GPUutil: 100
+    - op: [6, 7]
+      ratio: 0
+      resource: 1
+      latency: 0.052633
+      CPUutil: 0
+      GPUutil: 100
+    - op: [8, 9]
+      ratio: 0
+      resource: 1
+      latency: 0.052633
+      CPUutil: 0
+      GPUutil: 100
+    - op: [10, 11]
+      ratio: 0
+      resource: 1
+      latency: 0.052633
+      CPUutil: 0
+      GPUutil: 100
+    - op: [12, 13]
+      ratio: 0
+      resource: 1
+      latency: 0.052633
+      CPUutil: 0
+      GPUutil: 100
+    - op: [14, 15]
+      ratio: 0
+      resource: 1
+      latency: 0.052633
+      CPUutil: 0
+      GPUutil: 100
+    - op: [16, 17]
+      ratio: 0
+      resource: 1
+      latency: 0.052633
+      CPUutil: 0
+      GPUutil: 100
+    - op: [18, 19, 20]
+      ratio: 0
+      resource: 1
+      latency: 0.052633
+      CPUutil: 0
+      GPUutil: 100
+    - op: [21, 22]
+      ratio: 0
+      resource: 1
+      latency: 0.052633
+      CPUutil: 0
+      GPUutil: 100
+    - op: [23]
+      ratio: 0
+      resource: 1
+      latency: 0.052633
+      CPUutil: 0
+      GPUutil: 100
+    - op: [24, 25]
+      ratio: 0
+      resource: 1
+      latency: 0.052633
+      CPUutil: 0
+      GPUutil: 100
+    - op: [26]
+      ratio: 0
+      resource: 1
+      latency: 0.052633
+      CPUutil: 0
+      GPUutil: 100
+    - op: [27, 28]
+      ratio: 0
+      resource: 1
+      latency: 0.052633
+      CPUutil: 0
+      GPUutil: 100
+    - op: [29]
+      ratio: 0
+      resource: 1
+      latency: 0.052633
+      CPUutil: 0
+      GPUutil: 100

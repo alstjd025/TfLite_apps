@@ -1,0 +1,197 @@
+- candidate_level: 0
+  graphs:
+    - op: [0, 1, 2, 3, 4, 5, 6]
+      ratio: 0
+      resource: 3
+      latency: 0.018714
+      CPUutil: 100
+      GPUutil: 0
+    - op: [7, 8, 9, 10, 11, 12, 13, 14] 
+      ratio: 0
+      resource: 3
+      latency: 0.016148
+      CPUutil: 100
+      GPUutil: 0
+    - op: [15, 16, 17, 18, 19, 20, 21]
+      ratio: 0
+      resource: 3
+      latency: 0.014791
+      CPUutil: 100
+      GPUutil: 0
+    - op: [22, 23, 24, 25, 26, 27, 28, 29]
+      ratio: 0
+      resource: 3
+      latency: 0.019011
+      CPUutil: 100
+      GPUutil: 0
+    - op: [30, 31, 32, 33, 34, 35, 36]
+      ratio: 0
+      resource: 3
+      latency: 0.012949
+      CPUutil: 100
+      GPUutil: 0
+    - op: [37, 38, 39, 40, 41, 42, 43, 44]
+      ratio: 0
+      resource: 3
+      latency: 0.010159
+      CPUutil: 100
+      GPUutil: 0
+    - op:  [45, 46, 47, 48, 49, 50, 51, 52, 53]
+      ratio: 0
+      resource: 3
+      latency: 0.010441
+      CPUutil: 100
+      GPUutil: 0
+    - op: [54, 55, 56, 57, 58]
+      ratio: 0
+      resource: 3
+      latency: 0.010312
+      CPUutil: 100
+      GPUutil: 0
+    - op: [59, 60, 61, 62, 63, 64]      
+      ratio: 0
+      resource: 3
+      latency: 0.021734
+      CPUutil: 100
+      GPUutil: 0
+    - op: [65, 66, 67, 68, 69, 70, 71, 72]
+      ratio: 0
+      resource: 3
+      latency: 0.026055
+      CPUutil: 100
+      GPUutil: 0
+    - op: [73, 74, 75, 76, 77, 78, 79, 80]
+      ratio: 0
+      resource: 3
+      latency: 0.023653
+      CPUutil: 100
+      GPUutil: 0
+    - op: [81, 82, 83, 84, 85, 86, 87, 88]
+      ratio: 0
+      resource: 3
+      latency: 0.023121
+      CPUutil: 100
+      GPUutil: 0
+    - op: [89, 90, 91, 92, 93, 94, 95]
+      ratio: 0
+      resource: 3
+      latency: 0.015985
+      CPUutil: 100
+      GPUutil: 0
+    - op: [96, 97, 98, 99, 100, 101, 102]
+      ratio: 0
+      resource: 3
+      latency: 0.018883
+      CPUutil: 100
+      GPUutil: 0
+    - op: [103, 104, 105, 106, 107, 108, 109]
+      ratio: 0
+      resource: 3
+      latency: 0.016888
+      CPUutil: 100
+      GPUutil: 0
+    - op: [110, 111, 112, 113, 114, 115, 116, 117]
+      ratio: 0
+      resource: 3
+      latency: 0.019519
+      CPUutil: 100
+      GPUutil: 0
+
+- candidate_level: 1
+  graphs:
+    - op: [0, 1, 2, 3, 4, 5, 6]
+      ratio: 0
+      resource: 1
+      latency: 0.041083
+      CPUutil: 0
+      GPUutil: 100
+    - op: [7, 8, 9, 10, 11, 12, 13, 14] 
+      ratio: 0
+      resource: 1
+      latency: 0.045704
+      CPUutil: 0
+      GPUutil: 100
+    - op: [15, 16, 17, 18, 19, 20, 21]
+      ratio: 0
+      resource: 1
+      latency: 0.032000
+      CPUutil: 0
+      GPUutil: 100
+    - op: [22, 23, 24, 25, 26, 27, 28, 29]
+      ratio: 0
+      resource: 1
+      latency: 0.032830
+      CPUutil: 0
+      GPUutil: 100
+    - op: [30, 31, 32, 33, 34, 35, 36]
+      ratio: 0
+      resource: 1
+      latency: 0.023333
+      CPUutil: 0
+      GPUutil: 100
+    - op: [37, 38, 39, 40, 41, 42, 43, 44]
+      ratio: 0
+      resource: 1
+      latency: 0.020310
+      CPUutil: 0
+      GPUutil: 100
+    - op:  [45, 46, 47, 48, 49, 50, 51, 52, 53]
+      ratio: 0
+      resource: 1
+      latency: 0.021657
+      CPUutil: 0
+      GPUutil: 100
+    - op: [54, 55, 56, 57, 58]
+      ratio: 0
+      resource: 1
+      latency: 0.016916
+      CPUutil: 0
+      GPUutil: 100
+    - op: [59, 60, 61, 62, 63, 64]      
+      ratio: 0
+      resource: 1
+      latency: 0.033812
+      CPUutil: 0
+      GPUutil: 100
+    - op: [65, 66, 67, 68, 69, 70, 71, 72]
+      ratio: 0
+      resource: 1
+      latency: 0.040889
+      CPUutil: 0
+      GPUutil: 100
+    - op: [73, 74, 75, 76, 77, 78, 79, 80]
+      ratio: 0
+      resource: 1
+      latency: 0.034263
+      CPUutil: 0
+      GPUutil: 100
+    - op: [81, 82, 83, 84, 85, 86, 87, 88]
+      ratio: 0
+      resource: 1
+      latency: 0.026542
+      CPUutil: 0
+      GPUutil: 100
+    - op: [89, 90, 91, 92, 93, 94, 95]
+      ratio: 0
+      resource: 1
+      latency: 0.022676
+      CPUutil: 0
+      GPUutil: 100
+    - op: [96, 97, 98, 99, 100, 101, 102]
+      ratio: 0
+      resource: 1
+      latency: 0.024420
+      CPUutil: 0
+      GPUutil: 100
+    - op: [103, 104, 105, 106, 107, 108, 109]
+      ratio: 0
+      resource: 1
+      latency: 0.021020
+      CPUutil: 0
+      GPUutil: 100
+    - op: [110, 111, 112, 113, 114, 115, 116, 117]
+      ratio: 0
+      resource: 1
+      latency: 0.019351
+      CPUutil: 0
+      GPUutil: 100

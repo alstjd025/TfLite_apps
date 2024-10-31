@@ -2,11 +2,11 @@
 //#define ODROID
 
 #ifndef ODROID
-#define SCHEDULER_SOCK "/home/nvidia/TfLite_apps/sock/scheduler_1"
-#define SCHEDULER_ENGINE "/home/nvidia/TfLite_apps/sock/scheduler_e"
-#define SCHEDULER_SOCK_2 "/home/nvidia/TfLite_apps/sock/scheduler_2"
+#define SCHEDULER_SOCK "/home/nano/TfLite_apps/sock/scheduler_1"
+#define SCHEDULER_ENGINE "/home/nano/TfLite_apps/sock/scheduler_e"
+#define SCHEDULER_SOCK_2 "/home/nano/TfLite_apps/sock/scheduler_2"
 #define PARTITIONING_PARAMS \
-  "/home/nvidia/TfLite_apps/params/subgraph/[model_type]/"
+  "/home/nano/TfLite_apps/params/subgraph/[model_type]/"
 #endif
 
 #ifdef ODROID
