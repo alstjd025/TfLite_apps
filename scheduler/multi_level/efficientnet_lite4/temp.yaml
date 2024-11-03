@@ -1,8 +1,0 @@
-- candidate_level: 0
-  graphs:
-    - op: 
-      ratio: 0
-      resource: 3
-      latency: 0.041392
-      CPUutil: 0
-      GPUutil: 100

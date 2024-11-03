@@ -1,8 +1,8 @@
 #include "tensorflow/lite/tf_scheduler.h"
 
 // Note: target board config
-#define nx
-// #define nano
+//#define nx
+ #define nano
 // #define ODROID
 
 #ifdef nx

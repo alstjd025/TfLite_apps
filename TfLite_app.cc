@@ -8,8 +8,8 @@
 #define INFERENCE_NUM 1000
 
 // Note: target board config
-#define nx
-//#define nano
+//#define nx
+#define nano
 //#define ODROID_XU4
 
 // Note: 
