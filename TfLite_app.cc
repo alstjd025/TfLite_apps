@@ -5,15 +5,15 @@
 #include "tensorflow/lite/lite_runtime.h"
 #include "tensorflow/lite/util.h"
 
-#define INFERENCE_NUM 1000
+#define INFERENCE_NUM 10000
 
 // Note: target board config
-//#define nx
-#define nano
+#define nx
+//#define nano
 //#define ODROID_XU4
 
 // Note: 
-//#define elapsed_time
+#define elapsed_time
 
 using namespace cv;
 using namespace std;
