@@ -1,101 +1,141 @@
 - candidate_level: 0
   graphs:
-    - op: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+    - op: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
       ratio: 0
-      resource: 3
-      latency: 0.032955
-      CPUutil: 100
+      resource: 0
+      threads:
+        - latency: 0.038646
+          thread: 3
+        - latency: 0.054639
+          thread: 2
+        - latency: 0.105702
+          thread: 1
       GPUutil: 0
-    - op: [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]
+      latency: 0
+    - op: [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28]
       ratio: 0
-      resource: 3
-      latency: 0.033735
-      CPUutil: 100
+      resource: 0
+      threads:
+        - latency: 0.039184
+          thread: 3
+        - latency: 0.051762
+          thread: 2
+        - latency: 0.095726
+          thread: 1
       GPUutil: 0
-    - op: [30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44]
+      latency: 0
+    - op: [29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50]
       ratio: 0
-      resource: 3
-      latency: 0.023109
-      CPUutil: 100
+      resource: 0
+      threads:
+        - latency: 0.041802
+          thread: 3
+        - latency: 0.058349
+          thread: 2
+        - latency: 0.106075
+          thread: 1
       GPUutil: 0
-    - op: [45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58]
+      latency: 0
+    - op: [51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64]
       ratio: 0
-      resource: 3
-      latency: 0.019969
-      CPUutil: 100
+      resource: 0
+      threads:
+        - latency: 0.041129
+          thread: 3
+        - latency: 0.055773
+          thread: 2
+        - latency: 0.096907
+          thread: 1
       GPUutil: 0
-    - op: [59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72]
+      latency: 0
+    - op: [65, 66, 67, 68, 69, 70, 71, 72, 73, 74]
       ratio: 0
-      resource: 3
-      latency: 0.048293
-      CPUutil: 100
+      resource: 0
+      threads:
+        - latency: 0.038701
+          thread: 3
+        - latency: 0.052532
+          thread: 2
+        - latency: 0.092493
+          thread: 1
       GPUutil: 0
-    - op: [73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88]
+      latency: 0
+    - op: [75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87]
       ratio: 0
-      resource: 3
-      latency: 0.045751
-      CPUutil: 100
+      resource: 0
+      threads:
+        - latency: 0.048336
+          thread: 3
+        - latency: 0.064590
+          thread: 2
+        - latency: 0.116962
+          thread: 1
       GPUutil: 0
-    - op: [89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102]      
+      latency: 0
+    - op: [88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101]
       ratio: 0
-      resource: 3
-      latency: 0.034589
-      CPUutil: 100
+      resource: 0
+      threads:
+        - latency: 0.045248
+          thread: 3
+        - latency: 0.063798
+          thread: 2
+        - latency: 0.117349
+          thread: 1
       GPUutil: 0
-    - op: [103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117]      
+      latency: 0
+    - op: [102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117]
       ratio: 0
-      resource: 3
-      latency: 0.035777
-      CPUutil: 100
+      resource: 0
+      threads:
+        - latency: 0.049498
+          thread: 3
+        - latency: 0.069712
+          thread: 2
+        - latency: 0.126257
+          thread: 1
       GPUutil: 0
+      latency: 0
 
 - candidate_level: 1
   graphs:
-    - op: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14]
+    - op: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13]
       ratio: 0
       resource: 1
-      latency: 0.065927
-      CPUutil: 0
       GPUutil: 100
-    - op: [15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29]
+      latency: 0.048
+    - op: [14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28]
       ratio: 0
       resource: 1
-      latency: 0.053886
-      CPUutil: 0
       GPUutil: 100
-    - op: [30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44]
+      latency: 0.046
+    - op: [29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50]
       ratio: 0
       resource: 1
-      latency: 0.036438
-      CPUutil: 0
       GPUutil: 100
-    - op: [45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58]
+      latency: 0.042
+    - op: [51, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 62, 63, 64]
       ratio: 0
       resource: 1
-      latency: 0.031484
-      CPUutil: 0
       GPUutil: 100
-    - op: [59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72]
+      latency: 0.048
+    - op: [65, 66, 67, 68, 69, 70, 71, 72, 73, 74]
       ratio: 0
       resource: 1
-      latency: 0.065667
-      CPUutil: 0
       GPUutil: 100
-    - op: [73, 74, 75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87, 88]
+      latency: 0.04
+    - op: [75, 76, 77, 78, 79, 80, 81, 82, 83, 84, 85, 86, 87]
       ratio: 0
       resource: 1
-      latency: 0.055908
-      CPUutil: 0
       GPUutil: 100
-    - op: [89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101, 102]
+      latency: 0.045
+    - op: [88, 89, 90, 91, 92, 93, 94, 95, 96, 97, 98, 99, 100, 101]
       ratio: 0
       resource: 1
-      latency: 0.040370
-      CPUutil: 0
       GPUutil: 100
-    - op: [103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117]
+      latency: 0.037
+    - op: [102, 103, 104, 105, 106, 107, 108, 109, 110, 111, 112, 113, 114, 115, 116, 117]
       ratio: 0
       resource: 1
-      latency: 0.037090
-      CPUutil: 0
       GPUutil: 100
+      latency: 0.039
