@@ -49,29 +49,29 @@ using namespace std;
 
 #ifdef nano
 // signature 1
-#define RUNTIME_SOCK_1 "/home/nano/TfLite_apps/sock_1/runtime_1"
-#define RUNTIME_SOCK_2 "/home/nano/TfLite_apps/sock_1/runtime_2"
-#define RUNTIME_ENGINE "/home/nano/TfLite_apps/sock_1/runtime_e"
-#define SCHEDULER_SOCK_1 "/home/nano/TfLite_apps/sock_1/scheduler_1"
-#define SCHEDULER_SOCK_2 "/home/nano/TfLite_apps/sock_1/scheduler_2"
-#define SCHEDULER_ENGINE "/home/nano/TfLite_apps/sock_1/scheduler_e"
+#define RUNTIME_SOCK_1__1 "/home/nano/TfLite_apps/sock_1/runtime_1"
+#define RUNTIME_SOCK_2__1 "/home/nano/TfLite_apps/sock_1/runtime_2"
+#define RUNTIME_ENGINE__1 "/home/nano/TfLite_apps/sock_1/runtime_e"
+#define SCHEDULER_SOCK_1__1 "/home/nano/TfLite_apps/sock_1/scheduler_1"
+#define SCHEDULER_SOCK_2__1 "/home/nano/TfLite_apps/sock_1/scheduler_2"
+#define SCHEDULER_ENGINE__1 "/home/nano/TfLite_apps/sock_1/scheduler_e"
 #define ROOT_DIR "/home/nano/TfLite_apps/image"
 
 // signature 2
-#define RUNTIME_SOCK_1 "/home/nano/TfLite_apps/sock_2/runtime_1"
-#define RUNTIME_SOCK_2 "/home/nano/TfLite_apps/sock_2/runtime_2"
-#define RUNTIME_ENGINE "/home/nano/TfLite_apps/sock_2/runtime_e"
-#define SCHEDULER_SOCK_1 "/home/nano/TfLite_apps/sock_2/scheduler_1"
-#define SCHEDULER_SOCK_2 "/home/nano/TfLite_apps/sock_2/scheduler_2"
+#define RUNTIME_SOCK_1__2 "/home/nano/TfLite_apps/sock_2/runtime_1"
+#define RUNTIME_SOCK_2__2 "/home/nano/TfLite_apps/sock_2/runtime_2"
+#define RUNTIME_ENGINE__2 "/home/nano/TfLite_apps/sock_2/runtime_e"
+#define SCHEDULER_SOCK_1__2 "/home/nano/TfLite_apps/sock_2/scheduler_1"
+#define SCHEDULER_SOCK_2__2 "/home/nano/TfLite_apps/sock_2/scheduler_2"
 #define SCHEDULER_ENGINE "/home/nano/TfLite_apps/sock_2/scheduler_e"
 #define ROOT_DIR "/home/nano/TfLite_apps/image"
 
 // signature 3
-#define RUNTIME_SOCK_1 "/home/nano/TfLite_apps/sock_3/runtime_1"
-#define RUNTIME_SOCK_2 "/home/nano/TfLite_apps/sock_3/runtime_2"
-#define RUNTIME_ENGINE "/home/nano/TfLite_apps/sock_3/runtime_e"
-#define SCHEDULER_SOCK_1 "/home/nano/TfLite_apps/sock_3/scheduler_1"
-#define SCHEDULER_SOCK_2 "/home/nano/TfLite_apps/sock_3/scheduler_2"
+#define RUNTIME_SOCK_1__3 "/home/nano/TfLite_apps/sock_3/runtime_1"
+#define RUNTIME_SOCK_2__3 "/home/nano/TfLite_apps/sock_3/runtime_2"
+#define RUNTIME_ENGINE__3 "/home/nano/TfLite_apps/sock_3/runtime_e"
+#define SCHEDULER_SOCK_1__3 "/home/nano/TfLite_apps/sock_3/scheduler_1"
+#define SCHEDULER_SOCK_2__3 "/home/nano/TfLite_apps/sock_3/scheduler_2"
 #define SCHEDULER_ENGINE "/home/nano/TfLite_apps/sock_3/scheduler_e"
 #define ROOT_DIR "/home/nano/TfLite_apps/image"
 #endif
