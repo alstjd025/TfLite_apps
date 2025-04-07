@@ -19,12 +19,31 @@ using namespace cv;
 using namespace std;
 
 #ifdef nx
-#define RUNTIME_SOCK_1 "/home/nvidia/TfLite_apps/sock/runtime_1"
-#define RUNTIME_SOCK_2 "/home/nvidia/TfLite_apps/sock/runtime_2"
-#define RUNTIME_ENGINE "/home/nvidia/TfLite_apps/sock/runtime_e"
-#define SCHEDULER_SOCK_1 "/home/nvidia/TfLite_apps/sock/scheduler_1"
-#define SCHEDULER_SOCK_2 "/home/nvidia/TfLite_apps/sock/scheduler_2"
-#define SCHEDULER_ENGINE "/home/nvidia/TfLite_apps/sock/scheduler_e"
+// signature 1
+#define RUNTIME_SOCK_1__1 "/home/nvidia/TfLite_apps/sock_1/runtime_1"
+#define RUNTIME_SOCK_2__1 "/home/nvidia/TfLite_apps/sock_1/runtime_2"
+#define RUNTIME_ENGINE__1 "/home/nvidia/TfLite_apps/sock_1/runtime_e"
+#define SCHEDULER_SOCK_1__1 "/home/nvidia/TfLite_apps/sock_1/scheduler_1"
+#define SCHEDULER_SOCK_2__1 "/home/nvidia/TfLite_apps/sock_1/scheduler_2"
+#define SCHEDULER_ENGINE__1 "/home/nvidia/TfLite_apps/sock_1/scheduler_e"
+#define ROOT_DIR "/home/nvidia/TfLite_apps/image"
+
+// signature 2
+#define RUNTIME_SOCK_1__2 "/home/nvidia/TfLite_apps/sock_2/runtime_1"
+#define RUNTIME_SOCK_2__2 "/home/nvidia/TfLite_apps/sock_2/runtime_2"
+#define RUNTIME_ENGINE__2 "/home/nvidia/TfLite_apps/sock_2/runtime_e"
+#define SCHEDULER_SOCK_1__2 "/home/nvidia/TfLite_apps/sock_2/scheduler_1"
+#define SCHEDULER_SOCK_2__2 "/home/nvidia/TfLite_apps/sock_2/scheduler_2"
+#define SCHEDULER_ENGINE__2 "/home/nvidia/TfLite_apps/sock_2/scheduler_e"
+#define ROOT_DIR "/home/nvidia/TfLite_apps/image"
+
+// signature 3
+#define RUNTIME_SOCK_1__3 "/home/nvidia/TfLite_apps/sock_3/runtime_1"
+#define RUNTIME_SOCK_2__3 "/home/nvidia/TfLite_apps/sock_3/runtime_2"
+#define RUNTIME_ENGINE__3 "/home/nvidia/TfLite_apps/sock_3/runtime_e"
+#define SCHEDULER_SOCK_1__3 "/home/nvidia/TfLite_apps/sock_3/scheduler_1"
+#define SCHEDULER_SOCK_2__3 "/home/nvidia/TfLite_apps/sock_3/scheduler_2"
+#define SCHEDULER_ENGINE__3 "/home/nvidia/TfLite_apps/sock_3/scheduler_e"
 #define ROOT_DIR "/home/nvidia/TfLite_apps/image"
 #endif
 
@@ -334,15 +353,17 @@ tflite::INPUT_TYPE GetInputTypeFromString(string input_type) {
 int main(int argc, char* argv[]) {
   const char* model;
   std::string input_type_str, sequence_name, log_path;
-  if (argc == 5){ 
+  int socket_signature = 1;
+  if (argc == 4){ 
     std::cout << "Got model: " << argv[1]
               << "\n input type: " << argv[2]
-              << "\n test sequence name: " << argv[3]
-              << "\n log file path: " << argv[4] << "\n";
+              << "\n socket signature: " << argv[3];
+              // << "\n log file path: " << argv[4] << "\n"
     model = argv[1];
     input_type_str = argv[2];
-    sequence_name = argv[3];
-    log_path = argv[4];
+    socket_signature = std::atoi(argv[3]);
+    // sequence_name = argv[3];
+    // log_path = argv[4];
   } else {
     fprintf(stderr,
             "<tflite model> <input_type> <sequence_name>"
@@ -417,8 +438,49 @@ int main(int argc, char* argv[]) {
   // Inittialize runtime
 
   // 생성자부터 하나의 쓰레드로 생성
-  tflite::TfLiteRuntime runtime(RUNTIME_SOCK_1, SCHEDULER_SOCK_1, RUNTIME_SOCK_2,
-                                SCHEDULER_SOCK_2, RUNTIME_ENGINE, SCHEDULER_ENGINE,
+  char* runtime_sock_1;
+  char* scheduler_sock_1;
+  char* runtime_sock_2;
+  char* scheduler_sock_2;
+  char* runtime_engine;
+  char* scheduler_engine;
+  switch (socket_signature)
+  {
+  case 1:
+    runtime_sock_1 = RUNTIME_SOCK_1__1;
+    runtime_sock_2 = RUNTIME_SOCK_2__1;
+    scheduler_sock_1 = SCHEDULER_SOCK_1__1;
+    scheduler_sock_2 = SCHEDULER_SOCK_2__1;
+    runtime_engine = RUNTIME_ENGINE__1;
+    scheduler_engine = SCHEDULER_ENGINE__1;
+    break;
+  case 2:
+    runtime_sock_1 = RUNTIME_SOCK_1__2;
+    runtime_sock_2 = RUNTIME_SOCK_2__2;
+    scheduler_sock_1 = SCHEDULER_SOCK_1__2;
+    scheduler_sock_2 = SCHEDULER_SOCK_2__2;
+    runtime_engine = RUNTIME_ENGINE__2;
+    scheduler_engine = SCHEDULER_ENGINE__2;
+    break;
+  case 3:
+    runtime_sock_1 = RUNTIME_SOCK_1__3;
+    runtime_sock_2 = RUNTIME_SOCK_2__3;
+    scheduler_sock_1 = SCHEDULER_SOCK_1__3;
+    scheduler_sock_2 = SCHEDULER_SOCK_2__3;
+    runtime_engine = RUNTIME_ENGINE__3;
+    scheduler_engine = SCHEDULER_ENGINE__3;
+    break;
+  default:
+    runtime_sock_1 = RUNTIME_SOCK_1__1;
+    runtime_sock_2 = RUNTIME_SOCK_2__1;
+    scheduler_sock_1 = SCHEDULER_SOCK_1__1;
+    scheduler_sock_2 = SCHEDULER_SOCK_2__1;
+    runtime_engine = RUNTIME_ENGINE__1;
+    scheduler_engine = SCHEDULER_ENGINE__1;
+    break;
+  }
+  tflite::TfLiteRuntime runtime(runtime_sock_1, scheduler_sock_1, runtime_sock_2,
+                                scheduler_sock_2, runtime_engine, scheduler_engine,
                                 model, input_type, device_type);
   //[asynch todo] 생성자 안으로 넣기
   if (runtime.GetRuntimeState() != tflite::RuntimeState::INVOKE_) {
