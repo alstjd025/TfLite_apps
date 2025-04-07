@@ -22,14 +22,27 @@
 #define SCHEDULER_SOCK__3 "/home/nvidia/TfLite_apps/sock_3/scheduler_1"
 #define SCHEDULER_ENGINE__3 "/home/nvidia/TfLite_apps/sock_3/scheduler_e"
 #define SCHEDULER_SOCK_2__3 "/home/nvidia/TfLite_apps/sock_3/scheduler_2"
+
 #define PARTITIONING_PARAMS \
   "/home/nvidia/TfLite_apps/params/subgraph/[model_type]/"
 #endif
 
 #ifdef nano
-#define SCHEDULER_SOCK "/home/nano/TfLite_apps/sock/scheduler_1"
-#define SCHEDULER_ENGINE "/home/nano/TfLite_apps/sock/scheduler_e"
-#define SCHEDULER_SOCK_2 "/home/nano/TfLite_apps/sock/scheduler_2"
+// signature 1
+#define SCHEDULER_SOCK "/home/nano/TfLite_apps/sock_1/scheduler_1"
+#define SCHEDULER_ENGINE "/home/nano/TfLite_apps/sock_1/scheduler_e"
+#define SCHEDULER_SOCK_2 "/home/nano/TfLite_apps/sock_1/scheduler_2"
+
+// signature 2
+#define SCHEDULER_SOCK "/home/nano/TfLite_apps/sock_2/scheduler_1"
+#define SCHEDULER_ENGINE "/home/nano/TfLite_apps/sock_2/scheduler_e"
+#define SCHEDULER_SOCK_2 "/home/nano/TfLite_apps/sock_2/scheduler_2"
+
+// signature 3
+#define SCHEDULER_SOCK "/home/nano/TfLite_apps/sock_3/scheduler_1"
+#define SCHEDULER_ENGINE "/home/nano/TfLite_apps/sock_3/scheduler_e"
+#define SCHEDULER_SOCK_2 "/home/nano/TfLite_apps/sock_3/scheduler_2"
+
 #define PARTITIONING_PARAMS \
   "/home/nano/TfLite_apps/params/subgraph/[model_type]/"
 #endif
